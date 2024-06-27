@@ -4,6 +4,7 @@ import pandas as pd
 pd.options.mode.chained_assignment = None  # default='warn'
 import numpy as np
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 import h5py
 
 def Format(inputs, outputs, phase, RSSI, h5_files):
@@ -148,6 +149,31 @@ def plot_2D(phase, RSSI, title, EPC_sep):
 
     print("\n-------------------- FINISHED PLOTTING --------------------\n")
 
+def plot_3D(phase, RSSI, EPC_sep, title):
+    x = []
+    y = []
+    z = []
+    c = ['r', 'b', 'g', 'm', 'y', 'k']
+    label = ['1 A1', '1 A2', '2 A1', '2 A2', '3 A1', '3 A2']
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection = '3d')
+
+    for i in range(len(EPC_sep)):
+        x.append(EPC_sep[i][RSSI])
+        y.append(EPC_sep[i]['EPC'])
+        z.append(EPC_sep[i][phase])
+        ax.plot(x[i], y[i], z[i], c = c[i], marker = 'o', label = label[i])
+
+    ax.set_xlabel('Normalized RSSI')
+    ax.set_ylabel('EPC')
+    ax.set_zlabel('Phase Angle (rads)')
+    ax.set_title(title)
+
+    ax.legend()
+
+    plt.show()
+
 # have a function that does this maybe?
 input1 = 'Data/REV3 3m/6 Lat to Front/6_2s_2_2024-06-19_14-45-00.csv'
 input2 = 'Data/REV3 3m/6 Lat to Front/6_2s_2_2024-06-19_14-45-14.csv'
@@ -176,5 +202,8 @@ title = '1: Lateral Raise Gesture - REV3 3m Data'
 # automate this?
 EPC_sep = Format(inputs, csv_formatted, phase, RSSI, h5_files)
 
-# plot all 3 csvs on 4 subplots
+# plot all 3 datasets separated by EPC into 2 graphs (Phase & RSSI)
 #plot_2D(phase, RSSI, title, EPC_sep)
+
+# plot all 3 datasets on a 3D plot
+plot_3D(phase, RSSI, EPC_sep, title)
