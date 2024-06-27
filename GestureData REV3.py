@@ -175,9 +175,9 @@ def plot_3D(phase, RSSI, EPC_sep, title):
     plt.show()
 
 # have a function that does this maybe?
-input1 = 'Data/REV3 3m/6 Lat to Front/6_2s_2_2024-06-19_14-45-00.csv'
-input2 = 'Data/REV3 3m/6 Lat to Front/6_2s_2_2024-06-19_14-45-14.csv'
-input3 = 'Data/REV3 3m/6 Lat to Front/6_2s_2_2024-06-19_14-45-28.csv'
+input1 = 'Data/REV2 1.5m/4 Pull/4_2s_2_2024-06-13_14-56-22.csv'
+input2 = 'Data/REV2 1.5m/4 Pull/4_2s_2_2024-06-13_14-56-33.csv'
+input3 = 'Data/REV2 1.5m/4 Pull/4_2s_2_2024-06-13_14-56-44.csv'
 inputs = [input1, input2, input3]
 
 # define output csv locations
@@ -196,7 +196,7 @@ h5_files = [h5_1, h5_2, h5_3]
 # do i want this?
 phase = 'PhaseAngle'
 RSSI = 'RSSI'
-title = '1: Lateral Raise Gesture - REV3 3m Data'
+title = 'G4: Pull - REV2 1.5m'
 
 # call the reformatting function
 # automate this?
