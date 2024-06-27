@@ -5,7 +5,10 @@ pd.options.mode.chained_assignment = None  # default='warn'
 import numpy as np
 import h5py
 
-def Format(inputs, outputs, phase, RSSI, h5_files):
+# this function formats the original data exported from the ItemTest program
+# made by IMPINJ. The output of this function returns dataframes in vector
+# format which contain RSSI & phase data based on EPC and iteration
+def format(inputs, outputs, phase, RSSI, h5_files):
     # define empty variables 
     data = []
     EPC_sep = []

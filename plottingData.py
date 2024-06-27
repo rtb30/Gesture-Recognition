@@ -6,6 +6,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
+# this function uses 2D plots to show similarities between phase vs time and 
+# RSSI vs time graphs dependent on iteration, also separated by EPC
 def plot_2D(phase, RSSI, title, EPC_sep):
     # create figure of 2x2 subplot region
     fig, axs = plt.subplots(2, 2, figsize=(12, 8))
@@ -63,11 +65,14 @@ def plot_2D(phase, RSSI, title, EPC_sep):
     # bbox_inches = 'tight' : ensures it saves all components of figure
     #fig.savefig(f'Graphs/REV3 3m/{title}.png', dpi=300, bbox_inches='tight')
 
+    print("\n-------------------- FINISHED 2D PLOTTING --------------------\n")
+
     # show the figure
     plt.show()
 
-    print("\n-------------------- FINISHED 2D PLOTTING --------------------\n")
-
+# this function makes a 3D plot with RSSI in the x, EPC in the y, and phase 
+# in the z. This is to show similarities between RSSI vs phase graphs dependent
+# on iteration, also separated by EPC
 def plot_3D(phase, RSSI, EPC_sep, title):
     x = []
     y = []
@@ -91,6 +96,6 @@ def plot_3D(phase, RSSI, EPC_sep, title):
 
     ax.legend()
 
-    plt.show()
-
     print("\n-------------------- FINISHED 3D PLOTTING --------------------\n")
+
+    plt.show()
