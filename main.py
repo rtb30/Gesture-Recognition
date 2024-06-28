@@ -2,46 +2,37 @@
 from formatData import format
 from plottingData import plot_2D, plot_3D
 from preprocData import rolling, gaussian, savgol, detrend
+from fileNames import get_csv_filenames, get_output_filenames
+import os
 
-# have a function that does this maybe?
-input1 = 'Data/REV3 3m/7 Swipe Right/7_2s_2_2024-06-19_14-46-03.csv'
-input2 = 'Data/REV3 3m/7 Swipe Right/7_2s_2_2024-06-19_14-46-17.csv'
-input3 = 'Data/REV3 3m/7 Swipe Right/7_2s_2_2024-06-19_14-46-32.csv'
-inputs = [input1, input2, input3]
-title = 'G7: Swipe Right - REV3 3m'
+def main(folder_path, title):
+    # define filenames for inputs and outputs
+    inputs = get_csv_filenames(folder_path)
+    csv_formatted, h5_files = get_output_filenames(inputs)
 
-# define output csv locations
-# have a function to automate?
-output1 = 'Formatted1.csv'
-output2 = 'Formatted2.csv'
-output3 = 'Formatted3.csv'
-csv_formatted = [output1, output2, output3]
+    # other variables
+    phase = 'PhaseAngle'
+    RSSI = 'RSSI'
 
-# define output h5 locations
-h5_1 = 'Formatted1.h5'
-h5_2 = 'Formatted2.h5'
-h5_3 = 'Formatted3.h5'
-h5_files = [h5_1, h5_2, h5_3]
+    # format all data
+    EPC_sep = format(inputs, csv_formatted, phase, RSSI, h5_files)
 
-# other variables
-# do i want this?
-phase = 'PhaseAngle'
-RSSI = 'RSSI'
+    # filtering functions for non-periodic phase data of quantities around 20
+    EPC_sep = savgol(EPC_sep, phase)
+    EPC_sep = gaussian(EPC_sep, phase)
+    EPC_sep = rolling(EPC_sep, phase)
 
+    # plot all 3 datasets separated by EPC into 2 graphs (Phase & RSSI)
+    #plot_2D(phase, RSSI, title, EPC_sep)
 
-# call the reformatting function
-EPC_sep = format(inputs, csv_formatted, phase, RSSI, h5_files)
+    # plot all 3 datasets on a 3D plot (x, y, z) = (RSSI, EPC, phase)
+    plot_3D(phase, RSSI, EPC_sep, title)
 
-# call the filtering functions
-EPC_sep = savgol(EPC_sep, phase)
-EPC_sep = gaussian(EPC_sep, phase)
-EPC_sep = rolling(EPC_sep, phase)
-
-# plot all 3 datasets separated by EPC into 2 graphs (Phase & RSSI)
-#plot_2D(phase, RSSI, title, EPC_sep)
-
-# plot all 3 datasets on a 3D plot (x, y, z) = (RSSI, EPC, phase)
-plot_3D(phase, RSSI, EPC_sep, title)
+if __name__ == '__main__':
+    # define folder path and title
+    folder_path = 'Data/REV3 3m/7 Swipe Right'
+    title = 'G7: Swipe Right - REV3 3m'
+    main (folder_path, title)
 
 # git commands 
 # git status (dont really need this)
