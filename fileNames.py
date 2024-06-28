@@ -22,8 +22,8 @@ def get_output_filenames(inputs):
 
     # for loop to iterate over filenames 
     for i in range(len(inputs)):
-        csv_formatted.append(f'Formatted{i + 1}.csv')
-        h5_files.append(f'Formatted{i + 1}.h5')
+        csv_formatted.append(f'CSV_formatted/formatted{i + 1}.csv')
+        h5_files.append(f'HDF5_formatted/formatted{i + 1}.h5')
 
     # return both arrays
     return csv_formatted, h5_files
