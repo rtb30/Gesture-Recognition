@@ -3,7 +3,6 @@ from formatData import format
 from plottingData import plot_2D, plot_3D
 from preprocData import rolling, gaussian, savgol, detrend
 from fileNames import get_csv_filenames, get_output_filenames
-import os
 
 def main(folder_path, title):
     # define filenames for inputs and outputs
@@ -30,7 +29,7 @@ def main(folder_path, title):
 
 if __name__ == '__main__':
     # define folder path and title
-    folder_path = 'Data/REV3 3m/7 Swipe Right'
+    folder_path = 'Data/REV2 1.5m/3 Lift'
     title = 'G7: Swipe Right - REV3 3m'
     main (folder_path, title)
 
