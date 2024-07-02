@@ -4,6 +4,7 @@ import pandas as pd
 pd.options.mode.chained_assignment = None  # default='warn'
 import numpy as np
 import h5py
+from preprocData import rolling, gaussian, savgol, detrend
 
 # this function formats the original data exported from the ItemTest program
 # made by IMPINJ. The output of this function returns dataframes in vector
@@ -75,6 +76,11 @@ def format(inputs, outputs, phase, RSSI, h5_files):
         # unwrap all phase data by EPC
         EPC_sep[i][phase] = np.unwrap(EPC_sep[i][phase])
 
+    # filtering functions for non-periodic phase data of quantities around 20
+    EPC_sep = savgol(EPC_sep, phase)
+    EPC_sep = gaussian(EPC_sep, phase)
+    EPC_sep = rolling(EPC_sep, phase)
+
     for i in range(len(data)):
         data_new.append(pd.concat([EPC_sep[i], EPC_sep[i + 1]], ignore_index = True))
 
@@ -84,6 +90,6 @@ def format(inputs, outputs, phase, RSSI, h5_files):
         # store dataframe in new .h5 file, key designates title, and mode 'w' ensures exisiting file is overwritten
         data_new[i].to_hdf(h5_files[i], key = 'data', mode = 'w')
 
-    print("\n-------------------- FINISHED FORMATTING --------------------\n")
+    print("\n-------------- FINISHED FORMATTING & FILTERING --------------\n")
 
     return EPC_sep

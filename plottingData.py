@@ -77,8 +77,10 @@ def plot_3D(phase, RSSI, EPC_sep, title):
     x = []
     y = []
     z = []
-    c = ['r', 'b', 'g', 'm', 'y', 'k']
-    label = ['1 A1', '1 A2', '2 A1', '2 A2', '3 A1', '3 A2']
+    label = []
+    for i in range(len(EPC_sep)):
+        label.append(f'{i + 1} A1')
+        label.append(f'{i + 1} A2')
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection = '3d')
@@ -87,7 +89,7 @@ def plot_3D(phase, RSSI, EPC_sep, title):
         x.append(EPC_sep[i][RSSI])
         y.append(EPC_sep[i]['EPC'])
         z.append(EPC_sep[i][phase])
-        ax.plot(x[i], y[i], z[i], c = c[i], marker = 'o', label = label[i])
+        ax.plot(x[i], y[i], z[i], marker = 'o', label = label[i]) #c = c[i] for specific colors
 
     ax.set_xlabel('Normalized RSSI')
     ax.set_ylabel('EPC')

@@ -1,7 +1,7 @@
 # import functions
 from formatData import format
 from plottingData import plot_2D, plot_3D
-from preprocData import rolling, gaussian, savgol, detrend
+#from preprocData import rolling, gaussian, savgol, detrend
 from fileNames import get_csv_filenames, get_output_filenames
 
 def main(folder_path, title):
@@ -16,11 +16,6 @@ def main(folder_path, title):
     # format all data
     EPC_sep = format(inputs, csv_formatted, phase, RSSI, h5_files)
 
-    # filtering functions for non-periodic phase data of quantities around 20
-    EPC_sep = savgol(EPC_sep, phase)
-    EPC_sep = gaussian(EPC_sep, phase)
-    EPC_sep = rolling(EPC_sep, phase)
-
     # plot all 3 datasets separated by EPC into 2 graphs (Phase & RSSI)
     #plot_2D(phase, RSSI, title, EPC_sep)
 
@@ -29,8 +24,8 @@ def main(folder_path, title):
 
 if __name__ == '__main__':
     # define folder path and title
-    folder_path = 'Data/REV2 1.5m/3 Lift'
-    title = 'G7: Swipe Right - REV3 3m'
+    folder_path = 'Data/REV3 1.5m/7 Swipe Right'
+    title = 'G7: Swipe Right - REV3 1.5m'
     main (folder_path, title)
 
 # git commands 
