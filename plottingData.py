@@ -65,7 +65,7 @@ def plot_2D(phase, RSSI, title, EPC_sep):
     # bbox_inches = 'tight' : ensures it saves all components of figure
     #fig.savefig(f'Graphs/REV3 3m/{title}.png', dpi=300, bbox_inches='tight')
 
-    print("\n-------------------- FINISHED 2D PLOTTING --------------------\n")
+    print("-------------------- FINISHED 2D PLOTTING --------------------\n")
 
     # show the figure
     plt.show()
@@ -98,6 +98,6 @@ def plot_3D(phase, RSSI, EPC_sep, title):
 
     ax.legend()
 
-    print("\n-------------------- FINISHED 3D PLOTTING --------------------\n")
+    print("-------------------- FINISHED 3D PLOTTING --------------------\n")
 
     plt.show()

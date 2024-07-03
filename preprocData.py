@@ -6,6 +6,7 @@ from scipy.signal import detrend
 
 # rolling mean filter: smooths data by taking a moving average of each point
 # window is the size of how many adjacent points are included
+# ***** this function deletes window - 1 points from the beginning of a dataframe *****
 def rolling(EPC_sep, phase):
     for i in range(len(EPC_sep)):
         EPC_sep[i][phase] = EPC_sep[i][phase].rolling(window = 3).mean()
@@ -21,10 +22,13 @@ def gaussian(EPC_sep, phase):
 
 # Savitzky-Golay filter: smooths data by using successive subsets of adjacent datapoints with a low-degree
 # polynomial by the method of linear least squares
-# window_length must be odd and greater than polyorder
+# window_length must be odd and greater than polyorder & amount of data values
 def savgol(EPC_sep, phase):
     for i in range(len(EPC_sep)):
-        EPC_sep[i][phase] = savgol_filter(EPC_sep[i][phase], window_length = 5, polyorder = 2)
+        if (EPC_sep[i].shape[0] > 5):
+            EPC_sep[i][phase] = savgol_filter(EPC_sep[i][phase], window_length = 5, polyorder = 2)
+        else:
+            pass
     return EPC_sep
 
 # Detrend function: removes any trend components of data

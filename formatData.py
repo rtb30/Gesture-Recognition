@@ -3,14 +3,14 @@ import pandas as pd
 # this gets rid of some random warning when separating data into EPC1 & EPC2
 pd.options.mode.chained_assignment = None  # default='warn'
 import numpy as np
-import h5py
 from preprocData import rolling, gaussian, savgol, detrend
+from fileSave import saveto_csv, saveto_h5
 
 # this function formats the original data exported from the ItemTest program
-# made by IMPINJ. The output of this function returns dataframes in vector
-# format which contain RSSI & phase data based on EPC and iteration
-def format(inputs, outputs, phase, RSSI, h5_files):
-    # define empty variables 
+# made by IMPINJ. The output of this function returns a dataframe list
+# which contains RSSI & phase data based on EPC and iteration for 1 gesture
+def format(inputs, outputs, phase, RSSI, csv_flag, h5_flag):
+    # define empty lists
     data = []
     EPC_sep = []
     RSSI_min = []
@@ -79,17 +79,18 @@ def format(inputs, outputs, phase, RSSI, h5_files):
     # filtering functions for non-periodic phase data of quantities around 20
     EPC_sep = savgol(EPC_sep, phase)
     EPC_sep = gaussian(EPC_sep, phase)
-    EPC_sep = rolling(EPC_sep, phase)
 
+    # for loop to concatenate the EPC separated date into singular dataframe
     for i in range(len(data)):
-        data_new.append(pd.concat([EPC_sep[i], EPC_sep[i + 1]], ignore_index = True))
+        j = 2*i
+        data_new.append(pd.concat([EPC_sep[j], EPC_sep[j + 1]], ignore_index = True))
 
-        # store dataframe in new csv file, and omit index numbers
-        data_new[i].to_csv(outputs[i], index = False)
-
-        # store dataframe in new .h5 file, key designates title, and mode 'w' ensures exisiting file is overwritten
-        data_new[i].to_hdf(h5_files[i], key = 'data', mode = 'w')
-
-    print("\n-------------- FINISHED FORMATTING & FILTERING --------------\n")
+    # use data to save as csv which will return and save unchanged data to h5
+    if csv_flag == 1:
+        saveto_csv(data_new, outputs)
+    if h5_flag == 1:
+        saveto_h5(data_new)
+    
+    print('-------------- FINISHED FORMATTING & FILTERING --------------\n')
 
     return EPC_sep

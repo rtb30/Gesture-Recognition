@@ -2,6 +2,7 @@
 import os
 import glob
 
+# this function clears a specific file folder
 def clear_folder(folder_path, ext):
     # Construct the file pattern to match extension in specific folder
     file_pattern = os.path.join(folder_path, ext)
@@ -13,12 +14,11 @@ def clear_folder(folder_path, ext):
     for file in delete_files:
         try:
             os.remove(file)
-            print(f'Deleted: {file}')
+            #print(f'Deleted: {file}')
         except OSError as e:
             print(f"Error: {file} - {e.strerror}")
 
-
-# this functions finds all csv files inside a specified folder from main to
+# this function finds all csv files inside a specified folder from main to
 # store the correct full path of each dataset in an array
 def get_csv_filenames(folder_path):        
     # use os to list all files in specified folder
@@ -28,23 +28,42 @@ def get_csv_filenames(folder_path):
     for i in range(len(csv_files)):
         csv_files[i] = folder_path + '/' + csv_files[i]
 
-    # return vector of file names
+    # return file names list
     return csv_files
 
 # this function uses the length of inputs to store names of the formatted data
-def get_output_filenames(inputs):
-    # delete exsiting output files
-    clear_folder('CSV_formatted', '*.csv')
+def get_output_filenames(inputs, rev_path):
+    # delete exsiting output files at designated path
+    clear_folder(str(rev_path), '*.csv')
     clear_folder('HDF5_formatted', '*.h5')
 
     # create empty arrays
     csv_formatted = []
-    h5_files = []
 
     # for loop to iterate over filenames 
     for i in range(len(inputs)):
-        csv_formatted.append(f'CSV_formatted/formatted{i + 1}.csv')
-        h5_files.append(f'HDF5_formatted/formatted{i + 1}.h5')
+        csv_formatted.append(str(rev_path) + f'/formatted{i + 1}.csv')
 
     # return both arrays
-    return csv_formatted, h5_files
+    return csv_formatted
+
+# this function creates a list with all the csv files in a directory
+def get_csv_all(root_dir):
+    # init a dictionary to hold data categorized by gesture
+    gesture_data = {}
+    # init list to hold all csv_path names
+    csv_path = []
+
+    # Read each subfolder (gesture type)
+    for gesture_folder in os.listdir(root_dir):
+        gesture_path = os.path.join(root_dir, gesture_folder)
+        if os.path.isdir(gesture_path):
+            gesture = gesture_folder
+            gesture_data[gesture] = []
+
+        # Read each CSV file in the gesture subfolder
+        for csv_file in os.listdir(gesture_path):
+            if csv_file.endswith('.csv'):
+                csv_path.append(os.path.join(gesture_path, csv_file))
+
+    return csv_path
