@@ -9,7 +9,10 @@ def saveto_csv(data_new, outputs):
 
     print('\n------------------ ' + str(len(data_new)) + ' .csv files were saved -----------------\n')
 
-def saveto_h5(data_new):
+# this function is to take a list of all the dataframes and create an HDF5 file. The output is:
+# 2 datasets - Data and Label
+# Data is a 3D matrix with (gestures, datapoints, and the 4 columns of data)
+def saveto_h5_3Dmatrix(data_new, h5_name):
     # create empty lists to store HDF5 data
     data_list = []
     label_list = []
@@ -39,8 +42,105 @@ def saveto_h5(data_new):
     label_array = np.array(label_list)
 
     # create HDF5 file and datasets (data & label)
-    with h5py.File('HDF5_formatted/train_data.h5', 'w') as h5f:
+    with h5py.File(f'HDF5_formatted/{h5_name}_data.h5', 'w') as h5f:
         h5f.create_dataset('data', data = data_array)
         h5f.create_dataset('label', data = label_array)
+
+    print('-------------------- .h5 file was saved --------------------\n')
+
+# this function is to take a list of all the dataframes and create an HDF5 file. The output is:
+# datasets of each gesture are split by EPC
+# each sub dataset are arrays containing RSSI and Phase data
+def saveto_h5_new(data_new):
+    # Create empty lists to store HDF5 data
+    data_list = []
+    gesture_labels = []
+
+    # Iterate over each dataframe in data_new
+    for i, df in enumerate(data_new):
+        # Extract necessary columns
+        time_values = df['TimeValue'].values
+        epcs = df['EPC'].values
+        rssis = df['RSSI'].values
+        phases = df['PhaseAngle'].values
+        
+        # Collect unique EPCs for this gesture
+        unique_epcs = np.unique(epcs)
+
+        # Create a dictionary to store data for each EPC
+        gesture_data = {}
+        for epc in unique_epcs:
+            mask = (epcs == epc)
+            epc_data = {
+                'RSSI': rssis[mask],
+                'Phase': phases[mask]
+            }
+            gesture_data[epc] = epc_data
+        
+        # Append the gesture data and label to lists
+        data_list.append(gesture_data)
+        gesture_labels.append(i)
+
+    # Create HDF5 file and store data
+    with h5py.File('HDF5_formatted/train_data.h5', 'w') as h5f:
+        for i, gesture_data in enumerate(data_list):
+            group_name = f'gesture_{i + 1}'  # Group names like 'gesture_1', 'gesture_2', ...
+            grp = h5f.create_group(group_name)
+            
+            # Store data for each EPC within the gesture group
+            for epc, epc_data in gesture_data.items():
+                grp.create_dataset(f'{epc}/RSSI', data=epc_data['RSSI'])
+                grp.create_dataset(f'{epc}/Phase', data=epc_data['Phase'])
+        
+        # Store gesture labels
+        h5f.create_dataset('labels', data=np.array(gesture_labels))
+
+# this function is to take a list of all the dataframes and create an HDF5 file. The output is:
+# 2 datasets - Data and Label
+# Data is a 4D matrix with (gestures, datapoints, EPC, and the 2 columns of RSSI and Phase data)
+def saveto_h5(data_new):
+    # store variables of dataframe length and expected EPC values
+    num_gestures = len(data_new)
+    epc_values = [1, 2]
+
+    # create empty lists and store initial data (non padded)
+    data_list = []
+    label_list = [] 
+    for i in range(len(data_new)):
+        data_list.append(data_new[i][['TimeValue', 'EPC', 'RSSI', 'PhaseAngle']].values)
+        label_list.append(i + 1) # labels are just a numerical representation of a gesture & repetition
+
+    # determine the maximum length of any gesture
+    max_length = max(len(data) for data in data_list)
+
+    # pad the arrays to ensure uniform length
+    padded_data_list = []
+    for data in data_list:
+        if len(data) < max_length:
+            padding = np.zeros((max_length - len(data), data.shape[1]))
+            padded_data = np.vstack((data, padding))
+        else:
+            padded_data = data
+        padded_data_list.append(padded_data)
+
+    # initialize the final data array with 4D shape of (total gestures, max length of all gestures, EPC total, RSSI & phase)
+    data_array = np.zeros((num_gestures, max_length, len(epc_values), 2))
+
+    # input all data into final array
+    for i, data in enumerate(padded_data_list):
+        for epc_idx, epc_val in enumerate(epc_values):
+            # store which rows in the 'EPC' column equals the EPC value (boolean logic)
+            mask = (data[:, 1] == epc_val)
+            
+            data_array[i, mask, epc_idx, 0] = data[mask, 2]  # 'RSSI' values
+            data_array[i, mask, epc_idx, 1] = data[mask, 3]  # 'PhaseAngle' values
+
+    # convert label_list to a numpy array
+    label_array = np.array(label_list)
+
+    # create HDF5 file and datasets (data & label)
+    with h5py.File('HDF5_formatted/train_data.h5', 'w') as h5f:
+        h5f.create_dataset('Data', data = data_array)
+        h5f.create_dataset('Label', data = label_array)
 
     print('-------------------- .h5 file was saved --------------------\n')

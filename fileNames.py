@@ -33,10 +33,6 @@ def get_csv_filenames(folder_path):
 
 # this function uses the length of inputs to store names of the formatted data
 def get_output_filenames(inputs, rev_path):
-    # delete exsiting output files at designated path
-    clear_folder(str(rev_path), '*.csv')
-    clear_folder('HDF5_formatted', '*.h5')
-
     # create empty arrays
     csv_formatted = []
 

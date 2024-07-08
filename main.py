@@ -8,6 +8,10 @@ import pandas as pd
 
 # this function is to reformat and plot a gesture
 def main1(folder_path, title):
+    # delete exsiting output files at designated path
+    clear_folder(str(rev_path), '*.csv')
+    clear_folder('HDF5_formatted', '*.h5')
+
     # define filenames for inputs and outputs
     inputs = get_csv_filenames(folder_path)
     csv_formatted = get_output_filenames(inputs, rev_path)
@@ -17,9 +21,10 @@ def main1(folder_path, title):
     RSSI = 'RSSI'
     csv_flag = 1
     h5_flag = 0
+    length = [0, 0]
 
     # format all data
-    EPC_sep = format(inputs, csv_formatted, phase, RSSI, csv_flag, h5_flag)
+    EPC_sep = format(inputs, csv_formatted, phase, RSSI, csv_flag, h5_flag, length)
 
     # plot all 3 datasets separated by EPC into 2 graphs (Phase & RSSI)
     #plot_2D(phase, RSSI, title, EPC_sep)
@@ -29,6 +34,10 @@ def main1(folder_path, title):
 
 # this function is to reformat and save a .h5 file for set of gestures
 def main2(root_dir, rev_path):
+    # delete exsiting output files at designated path
+    #clear_folder(str(rev_path), '*.csv')
+    #clear_folder('HDF5_formatted', '*.h5')
+
     # define lists that contain all csv file path, and where the new data will be stored
     csv_path = get_csv_all(root_dir)
     csv_formatted_path = get_output_filenames(csv_path, rev_path)
@@ -38,9 +47,12 @@ def main2(root_dir, rev_path):
     RSSI = 'RSSI'
     csv_flag = 0
     h5_flag = 1
+    h5_name = 'train'
+    # length: [interp flag, length, max length flag]
+    length = [1, 30, 1]
 
     # format and filter all data and write to .csvs & .h5
-    format(csv_path, csv_formatted_path, phase, RSSI, csv_flag, h5_flag)
+    format(csv_path, csv_formatted_path, phase, RSSI, csv_flag, h5_flag, length, h5_name)
 
 if __name__ == '__main__':
     # define flags for which function to run
@@ -56,8 +68,8 @@ if __name__ == '__main__':
 
     if main2_flag == 1:
         # declare root dir that contains subfolders for each gesture type
-        root_dir = 'Data/REV3 1.5m'
-        rev_path = 'CSV_formatted/REV3'
+        root_dir = 'Data/REV4 1.5m'
+        rev_path = 'CSV_formatted/REV4'
         main2(root_dir, rev_path)
 
 # git commands 
