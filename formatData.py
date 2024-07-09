@@ -12,7 +12,7 @@ from rdp import rdp
 # this function formats the original data exported from the ItemTest program
 # made by IMPINJ. The output of this function returns a dataframe list
 # which contains RSSI & phase data based on EPC and iteration for 1 gesture
-def format(inputs, outputs, phase, RSSI, csv_flag, h5_flag, length, h5_name):
+def format(inputs, outputs, flags, length, h5_name):
     # define empty lists
     data = []
     EPC_sep = []
@@ -52,16 +52,16 @@ def format(inputs, outputs, phase, RSSI, csv_flag, h5_flag, length, h5_name):
         data[i] = data[i].iloc[0:, [0,1,2,3]]
 
         # correctly change RSSI column to numbers
-        if(data[i][RSSI].dtype != 'int64'):
+        if(data[i]['RSSI'].dtype != 'int64'):
             # replace commas, negative signs, then change to float64s
-            data[i][RSSI] = data[i][RSSI].str.replace(',' , '.', regex = False)
-            data[i][RSSI] = data[i][RSSI].str.replace(r'[^\d.-]', '-', regex = True)
-            data[i][RSSI] = pd.to_numeric(data[i][RSSI], errors='coerce')
+            data[i]['RSSI'] = data[i]['RSSI'].str.replace(',' , '.', regex = False)
+            data[i]['RSSI'] = data[i]['RSSI'].str.replace(r'[^\d.-]', '-', regex = True)
+            data[i]['RSSI'] = pd.to_numeric(data[i]['RSSI'], errors='coerce')
 
         # replace commas, change to float64s, and round
-        data[i][phase] = data[i][phase].str.replace(',' , '.', regex = False)
-        data[i][phase] = pd.to_numeric(data[i][phase])
-        data[i][phase] = data[i][phase].round(4)
+        data[i]['PhaseAngle'] = data[i]['PhaseAngle'].str.replace(',' , '.', regex = False)
+        data[i]['PhaseAngle'] = pd.to_numeric(data[i]['PhaseAngle'])
+        data[i]['PhaseAngle'] = data[i]['PhaseAngle'].round(4)
 
         # replace EPC with numeric values
         mapping = {'A10000000000000000000000': 1, 'A20000000000000000000000': 2}
@@ -74,11 +74,11 @@ def format(inputs, outputs, phase, RSSI, csv_flag, h5_flag, length, h5_name):
     for i in range(len(EPC_sep)):
         if(EPC_sep[i].empty == False):
         # normalize all RSSI data by EPC
-            RSSI_min.append(min(EPC_sep[i][RSSI]))
-            EPC_sep[i][RSSI] = EPC_sep[i][RSSI] / RSSI_min[i]
+            RSSI_min.append(min(EPC_sep[i]['RSSI']))
+            EPC_sep[i]['RSSI'] = EPC_sep[i]['RSSI'] / RSSI_min[i]
 
             # unwrap all phase data by EPC
-            EPC_sep[i][phase] = np.unwrap(EPC_sep[i][phase])
+            EPC_sep[i]['PhaseAngle'] = np.unwrap(EPC_sep[i]['PhaseAngle'])
             EPC_sep[i] = EPC_sep[i].reset_index(drop = True)
 
         else:
@@ -86,8 +86,8 @@ def format(inputs, outputs, phase, RSSI, csv_flag, h5_flag, length, h5_name):
         #print(EPC_sep[i])
 
     # filtering functions for non-periodic phase data of quantities around 20
-    EPC_sep = savgol(EPC_sep, phase)
-    EPC_sep = gaussian(EPC_sep, phase)
+    EPC_sep = savgol(EPC_sep)
+    EPC_sep = gaussian(EPC_sep)
 
     # find the maximum length of data in all EPC dataframes
     # we can technically set this to whatever we want
@@ -111,9 +111,9 @@ def format(inputs, outputs, phase, RSSI, csv_flag, h5_flag, length, h5_name):
         #data_new[i] = data_new[i].reset_index(drop = True) 
 
     # use data to save as csv which will return and save unchanged data to h5
-    if csv_flag == 1:
+    if flags[0] == 1:
         saveto_csv(data_new, outputs)
-    if h5_flag == 1:
+    if flags[1] == 1:
         saveto_h5_3Dmatrix(data_new, h5_name) # 3D matrix
         #saveto_h5_new(data_new) # each dataset is separated by gesture & EPC
         #saveto_h5(data_new) # 4D matrix but indexing is incorrect

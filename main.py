@@ -10,27 +10,27 @@ import pandas as pd
 def main1(folder_path, title):
     # delete exsiting output files at designated path
     clear_folder(str(rev_path), '*.csv')
-    clear_folder('HDF5_formatted', '*.h5')
+    #clear_folder('HDF5_formatted', '*.h5')
 
     # define filenames for inputs and outputs
     inputs = get_csv_filenames(folder_path)
     csv_formatted = get_output_filenames(inputs, rev_path)
 
-    # other variables
-    phase = 'PhaseAngle'
-    RSSI = 'RSSI'
-    csv_flag = 1
-    h5_flag = 0
-    length = [0, 0]
+    # flags: [csv_flag, h5_flag]
+    flags = [1, 0]
+    h5_name = ''
+    
+    # length: [interp flag, length, max length flag]
+    length = [0, 0, 0]
 
     # format all data
-    EPC_sep = format(inputs, csv_formatted, phase, RSSI, csv_flag, h5_flag, length)
+    EPC_sep = format(inputs, csv_formatted, flags, length, h5_name)
 
     # plot all 3 datasets separated by EPC into 2 graphs (Phase & RSSI)
-    #plot_2D(phase, RSSI, title, EPC_sep)
+    #plot_2D(title, EPC_sep)
 
     # plot all 3 datasets on a 3D plot (x, y, z) = (RSSI, EPC, phase)
-    plot_3D(phase, RSSI, EPC_sep, title)
+    plot_3D(EPC_sep, title)
 
 # this function is to reformat and save a .h5 file for set of gestures
 def main2(root_dir, rev_path):
@@ -42,22 +42,20 @@ def main2(root_dir, rev_path):
     csv_path = get_csv_all(root_dir)
     csv_formatted_path = get_output_filenames(csv_path, rev_path)
 
-    # other variables
-    phase = 'PhaseAngle'
-    RSSI = 'RSSI'
-    csv_flag = 0
-    h5_flag = 1
+    # flags: [csv_flag, h5_flag]
+    flags = [0, 1]
     h5_name = 'train'
+
     # length: [interp flag, length, max length flag]
     length = [1, 30, 1]
 
     # format and filter all data and write to .csvs & .h5
-    format(csv_path, csv_formatted_path, phase, RSSI, csv_flag, h5_flag, length, h5_name)
+    format(csv_path, csv_formatted_path, flags, length, h5_name)
 
 if __name__ == '__main__':
     # define flags for which function to run
-    main1_flag = 0
-    main2_flag = 1
+    main1_flag = 1
+    main2_flag = 0
 
     if main1_flag == 1:
         # define folder path and title

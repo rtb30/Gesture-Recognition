@@ -8,14 +8,14 @@ from mpl_toolkits.mplot3d import Axes3D
 
 # this function uses 2D plots to show similarities between phase vs time and 
 # RSSI vs time graphs dependent on iteration, also separated by EPC
-def plot_2D(phase, RSSI, title, EPC_sep):
+def plot_2D(title, EPC_sep):
     # create figure of 2x2 subplot region
     fig, axs = plt.subplots(2, 2, figsize=(12, 8))
 
     # subplot 1: top left
-    axs[0, 0].plot(EPC_sep[0]['TimeValue'], EPC_sep[0][phase], marker = 'o', linestyle = '-', label = '1')
-    axs[0, 0].plot(EPC_sep[2]['TimeValue'], EPC_sep[2][phase], marker = 'o', linestyle = '-', label = '2')
-    axs[0, 0].plot(EPC_sep[4]['TimeValue'], EPC_sep[4][phase], marker = 'o', linestyle = '-', label = '3')
+    axs[0, 0].plot(EPC_sep[0]['TimeValue'], EPC_sep[0]['PhaseAngle'], marker = 'o', linestyle = '-', label = '1')
+    axs[0, 0].plot(EPC_sep[2]['TimeValue'], EPC_sep[2]['PhaseAngle'], marker = 'o', linestyle = '-', label = '2')
+    axs[0, 0].plot(EPC_sep[4]['TimeValue'], EPC_sep[4]['PhaseAngle'], marker = 'o', linestyle = '-', label = '3')
     axs[0, 0].set_ylabel('Phase Diff (rads)')
     axs[0, 0].set_xlabel('Time (s)')
     axs[0, 0].set_xlim(left=0)
@@ -24,9 +24,9 @@ def plot_2D(phase, RSSI, title, EPC_sep):
     axs[0, 0].grid(True)
 
     # subplot 2: top right
-    axs[0, 1].plot(EPC_sep[0]['TimeValue'], EPC_sep[0][RSSI], marker = 'o', linestyle = '-', label = '1')
-    axs[0, 1].plot(EPC_sep[2]['TimeValue'], EPC_sep[2][RSSI], marker = 'o', linestyle = '-', label = '2')
-    axs[0, 1].plot(EPC_sep[4]['TimeValue'], EPC_sep[4][RSSI], marker = 'o', linestyle = '-', label = '3')
+    axs[0, 1].plot(EPC_sep[0]['TimeValue'], EPC_sep[0]['RSSI'], marker = 'o', linestyle = '-', label = '1')
+    axs[0, 1].plot(EPC_sep[2]['TimeValue'], EPC_sep[2]['RSSI'], marker = 'o', linestyle = '-', label = '2')
+    axs[0, 1].plot(EPC_sep[4]['TimeValue'], EPC_sep[4]['RSSI'], marker = 'o', linestyle = '-', label = '3')
     axs[0, 1].set_ylabel('RSSI (Normalized)')
     axs[0, 1].set_xlabel('Time (s)')
     axs[0, 1].set_xlim(left=0)
@@ -35,9 +35,9 @@ def plot_2D(phase, RSSI, title, EPC_sep):
     axs[0, 1].grid(True)
 
     # subplot 3: bot left
-    axs[1, 0].plot(EPC_sep[1]['TimeValue'], EPC_sep[1][phase], marker = 'o', linestyle = '-', label = '1')
-    axs[1, 0].plot(EPC_sep[3]['TimeValue'], EPC_sep[3][phase], marker = 'o', linestyle = '-', label = '2')
-    axs[1, 0].plot(EPC_sep[5]['TimeValue'], EPC_sep[5][phase], marker = 'o', linestyle = '-', label = '3')
+    axs[1, 0].plot(EPC_sep[1]['TimeValue'], EPC_sep[1]['PhaseAngle'], marker = 'o', linestyle = '-', label = '1')
+    axs[1, 0].plot(EPC_sep[3]['TimeValue'], EPC_sep[3]['PhaseAngle'], marker = 'o', linestyle = '-', label = '2')
+    axs[1, 0].plot(EPC_sep[5]['TimeValue'], EPC_sep[5]['PhaseAngle'], marker = 'o', linestyle = '-', label = '3')
     axs[1, 0].set_ylabel('Phase Diff (rads)')
     axs[1, 0].set_xlabel('Time (s)')
     axs[1, 0].set_xlim(left=0)
@@ -46,9 +46,9 @@ def plot_2D(phase, RSSI, title, EPC_sep):
     axs[1, 0].grid(True)
 
     # subplot 4: bot right
-    axs[1, 1].plot(EPC_sep[1]['TimeValue'], EPC_sep[1][RSSI], marker = 'o', linestyle = '-', label = '1')
-    axs[1, 1].plot(EPC_sep[3]['TimeValue'], EPC_sep[3][RSSI], marker = 'o', linestyle = '-', label = '2')
-    axs[1, 1].plot(EPC_sep[5]['TimeValue'], EPC_sep[5][RSSI], marker = 'o', linestyle = '-', label = '3')
+    axs[1, 1].plot(EPC_sep[1]['TimeValue'], EPC_sep[1]['RSSI'], marker = 'o', linestyle = '-', label = '1')
+    axs[1, 1].plot(EPC_sep[3]['TimeValue'], EPC_sep[3]['RSSI'], marker = 'o', linestyle = '-', label = '2')
+    axs[1, 1].plot(EPC_sep[5]['TimeValue'], EPC_sep[5]['RSSI'], marker = 'o', linestyle = '-', label = '3')
     axs[1, 1].set_ylabel('RSSI (Normalized)')
     axs[1, 1].set_xlabel('Time (s)')
     axs[1, 1].set_xlim(left=0)
@@ -73,7 +73,7 @@ def plot_2D(phase, RSSI, title, EPC_sep):
 # this function makes a 3D plot with RSSI in the x, EPC in the y, and phase 
 # in the z. This is to show similarities between RSSI vs phase graphs dependent
 # on iteration, also separated by EPC
-def plot_3D(phase, RSSI, EPC_sep, title):
+def plot_3D(EPC_sep, title):
     x = []
     y = []
     z = []
@@ -86,9 +86,9 @@ def plot_3D(phase, RSSI, EPC_sep, title):
     ax = fig.add_subplot(111, projection = '3d')
 
     for i in range(len(EPC_sep)):
-        x.append(EPC_sep[i][RSSI])
+        x.append(EPC_sep[i]['RSSI'])
         y.append(EPC_sep[i]['EPC'])
-        z.append(EPC_sep[i][phase])
+        z.append(EPC_sep[i]['PhaseAngle'])
         ax.plot(x[i], y[i], z[i], marker = 'o', label = label[i]) #c = c[i] for specific colors
 
     ax.set_xlabel('Normalized RSSI')
