@@ -1,6 +1,7 @@
 # import
 import os
 import glob
+import re
 
 # this function clears a specific file folder
 def clear_folder(folder_path, ext):
@@ -45,21 +46,33 @@ def get_output_filenames(inputs, rev_path):
 
 # this function creates a list with all the csv files in a directory
 def get_csv_all(root_dir):
-    # init a dictionary to hold data categorized by gesture
-    gesture_data = {}
     # init list to hold all csv_path names
     csv_path = []
+    labels = []
 
     # Read each subfolder (gesture type)
-    for gesture_folder in os.listdir(root_dir):
+    #for gesture_folder in os.listdir(root_dir):
+    for i, gesture_folder in enumerate(sorted(os.listdir(root_dir), key = numerical_sort)):
         gesture_path = os.path.join(root_dir, gesture_folder)
-        if os.path.isdir(gesture_path):
-            gesture = gesture_folder
-            gesture_data[gesture] = []
+        #print(f'gesture{i+1}')
 
-        # Read each CSV file in the gesture subfolder
+        # Read each CSV file in the gesture subfolder and create label
         for csv_file in os.listdir(gesture_path):
             if csv_file.endswith('.csv'):
                 csv_path.append(os.path.join(gesture_path, csv_file))
+                name = f'gesture{i + 1}'
+                labels.append(name)
 
-    return csv_path
+    return csv_path, labels
+
+# the function extracts the numerical part from a string for sorting
+def numerical_sort(value):
+    # uses a regular expression to find all sequences of digits in the input string value
+    # r'\d+'    : raw string containing the regular exp pattern (can be anywhere in string)
+    # \d        : any digit
+    # +         : will add on any preceding numerical values
+    parts = re.findall(r'\d+', value) 
+
+    # finds the first element in the parts array and converts to integer
+    # if parts is empty return 0
+    return int(parts[0]) if parts else 0

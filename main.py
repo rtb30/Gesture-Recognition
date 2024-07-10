@@ -3,14 +3,13 @@ from formatData import format
 from plottingData import plot_2D, plot_3D
 #from preprocData import rolling, gaussian, savgol, detrend
 from fileNames import get_csv_filenames, get_output_filenames, get_csv_all, clear_folder
-import os
-import pandas as pd
 
 # this function is to reformat and plot a gesture
 def main1(folder_path, title):
     # delete exsiting output files at designated path
     clear_folder(str(rev_path), '*.csv')
     #clear_folder('HDF5_formatted', '*.h5')
+    labels = 0
 
     # define filenames for inputs and outputs
     inputs = get_csv_filenames(folder_path)
@@ -24,7 +23,7 @@ def main1(folder_path, title):
     length = [0, 0, 0]
 
     # format all data
-    EPC_sep = format(inputs, csv_formatted, flags, length, h5_name)
+    EPC_sep = format(inputs, csv_formatted, flags, length, h5_name, labels)
 
     # plot all 3 datasets separated by EPC into 2 graphs (Phase & RSSI)
     #plot_2D(title, EPC_sep)
@@ -39,23 +38,23 @@ def main2(root_dir, rev_path):
     #clear_folder('HDF5_formatted', '*.h5')
 
     # define lists that contain all csv file path, and where the new data will be stored
-    csv_path = get_csv_all(root_dir)
+    csv_path, labels = get_csv_all(root_dir)
     csv_formatted_path = get_output_filenames(csv_path, rev_path)
 
     # flags: [csv_flag, h5_flag]
     flags = [0, 1]
-    h5_name = 'train'
+    h5_name = 'ply_data_train'
 
     # length: [interp flag, length, max length flag]
-    length = [1, 30, 1]
+    length = [1, 25, 0]
 
     # format and filter all data and write to .csvs & .h5
-    format(csv_path, csv_formatted_path, flags, length, h5_name)
+    format(csv_path, csv_formatted_path, flags, length, h5_name, labels)
 
 if __name__ == '__main__':
     # define flags for which function to run
-    main1_flag = 1
-    main2_flag = 0
+    main1_flag = 0
+    main2_flag = 1
 
     if main1_flag == 1:
         # define folder path and title
@@ -67,12 +66,14 @@ if __name__ == '__main__':
     if main2_flag == 1:
         # declare root dir that contains subfolders for each gesture type
         root_dir = 'Data/REV4 1.5m'
-        rev_path = 'CSV_formatted/REV4'
+        rev_path = 'CSV_formatted/REV3'
         main2(root_dir, rev_path)
 
-# git commands 
-# git status (dont really need this)
-# git add .
-# or git add <file path>
-# git commit -m "Your message"
-# git push origin <branch name> (usually just main)
+# TO DO LIST
+# 1. Fix ML code to fit data
+
+# no meeting today
+# friday 1-2:30PM @ dipoli lobby
+# tues pizza w interns
+# wed no meeting
+# thurs dinner 6PM, set up excel sheet

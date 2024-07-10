@@ -20,7 +20,7 @@ def gaussian(EPC_sep):
         EPC_sep[i]['PhaseAngle'] = gaussian_filter1d(EPC_sep[i]['PhaseAngle'], sigma = 1)
     return EPC_sep
 
-# Savitzky-Golay filter: smooths data by using successive subsets of adjacent datapoints with a low-degree
+# o filter: smooths data by using successive subsets of adjacent datapoints with a low-degree
 # polynomial by the method of linear least squares
 # window_length must be odd and greater than polyorder & amount of data values
 def savgol(EPC_sep):

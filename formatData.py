@@ -4,7 +4,7 @@ import pandas as pd
 pd.options.mode.chained_assignment = None  # default='warn'
 import numpy as np
 from preprocData import rolling, gaussian, savgol, detrend
-from fileSave import saveto_csv, saveto_h5_3Dmatrix, saveto_h5_new, saveto_h5
+from fileSave import saveto_csv, saveto_h5_3Dmatrix, saveto_h5_gest_EPC_sep, saveto_h5_4Dmatrix
 from scipy.interpolate import interp1d
 from scipy.interpolate import CubicSpline
 from rdp import rdp
@@ -12,12 +12,16 @@ from rdp import rdp
 # this function formats the original data exported from the ItemTest program
 # made by IMPINJ. The output of this function returns a dataframe list
 # which contains RSSI & phase data based on EPC and iteration for 1 gesture
-def format(inputs, outputs, flags, length, h5_name):
-    # define empty lists
+def format(inputs, outputs, flags, length, h5_name, labels):
+    # init empty lists
     data = []
     EPC_sep = []
     RSSI_min = []
     data_new = []
+    EPC_count_list = []
+
+    #init empty dictionary
+    mapping = {}
     
     # load csv file into dataframe and change header row (deleted everything before)
     for input in inputs:
@@ -62,15 +66,35 @@ def format(inputs, outputs, flags, length, h5_name):
         data[i]['PhaseAngle'] = data[i]['PhaseAngle'].str.replace(',' , '.', regex = False)
         data[i]['PhaseAngle'] = pd.to_numeric(data[i]['PhaseAngle'])
         data[i]['PhaseAngle'] = data[i]['PhaseAngle'].round(4)
-
-        # replace EPC with numeric values
+        
+        # create list of numerical values for tag count
+        EPC_count_list.append(data[i]['EPC'].nunique())
+        '''
         mapping = {'A10000000000000000000000': 1, 'A20000000000000000000000': 2}
         data[i]['EPC'] = data[i]['EPC'].replace(mapping)
 
         # create another data set with separate EPC values
         EPC_sep.append(data[i][data[i]['EPC'] == 1])
         EPC_sep.append(data[i][data[i]['EPC'] == 2])
+        '''
 
+    # find the maximum amount of tags used
+    EPC_count = max(EPC_count_list)
+    #print('there are a max of ',EPC_count, ' tags used in this dataset')
+
+    # replace EPC with numeric values
+    for i in range(EPC_count):
+        mapping[f'A{i + 1}0000000000000000000000'] = (i + 1)
+
+    #print(mapping)
+
+    # create another data set with separate numercial EPC values
+    for i in range(len(data)):
+        data[i]['EPC'] = data[i]['EPC'].replace(mapping)
+        EPC_sep.append(data[i][data[i]['EPC'] == 1])
+        EPC_sep.append(data[i][data[i]['EPC'] == 2])
+        
+    
     for i in range(len(EPC_sep)):
         if(EPC_sep[i].empty == False):
         # normalize all RSSI data by EPC
@@ -99,26 +123,31 @@ def format(inputs, outputs, flags, length, h5_name):
         for i in range(len(EPC_sep)):
             if(EPC_sep[i].shape[0] > 1):
                 EPC_sep[i] = interpolate_data(EPC_sep[i], length[1])
+            else:
+                EPC_sep[i] = pad_data_zeros(EPC_sep[i], length[1])
+                #print(EPC_sep[i])
 
-    # for loop to concatenate the EPC separated date into singular dataframe sorted chronologically again
+    # concatenate separated EPC data into singular dataframe sorted chronologically again
     for i in range(len(data)):
-        j = 2*i
-        data_new.append(pd.concat([EPC_sep[j], EPC_sep[j + 1]], ignore_index = False))
-        #print(data_new[i])
+        EPC_gesture_list = []
+        for j in range(EPC_count):
+            EPC_gesture_list.append(EPC_sep[i * EPC_count + j])
+        
+        data_new.append(pd.concat(EPC_gesture_list, ignore_index = False))
 
         # this makes the HDF5 file more confusing but here for notation
         #data_new[i] = data_new[i].sort_values(by = 'TimeValue')
         #data_new[i] = data_new[i].reset_index(drop = True) 
 
+    print('-------------- FINISHED FORMATTING & FILTERING --------------\n')
+
     # use data to save as csv which will return and save unchanged data to h5
     if flags[0] == 1:
         saveto_csv(data_new, outputs)
     if flags[1] == 1:
-        saveto_h5_3Dmatrix(data_new, h5_name) # 3D matrix
-        #saveto_h5_new(data_new) # each dataset is separated by gesture & EPC
-        #saveto_h5(data_new) # 4D matrix but indexing is incorrect
-    
-    print('-------------- FINISHED FORMATTING & FILTERING --------------\n')
+        #saveto_h5_3Dmatrix(data_new, h5_name) # 3D matrix
+        #saveto_h5_gest_EPC_sep(data_new, h5_name) # each dataset is separated by gesture & EPC
+        saveto_h5_4Dmatrix(EPC_sep, h5_name, labels, EPC_count) # 4D matrix
 
     return EPC_sep
 
@@ -177,3 +206,12 @@ def interpolate_data(data, target_length):
     interpolated_df = pd.DataFrame(interpolated_data, columns = data.columns)
     return interpolated_df
     # return interpolated_data
+
+def pad_data_zeros(EPC_sep, max_length):
+
+    padding = np.zeros((max_length - len(EPC_sep), EPC_sep.shape[1]))
+    padded_data = np.vstack((EPC_sep, padding))
+
+    padded_dataframe = pd.DataFrame(padded_data, columns = EPC_sep.columns)
+
+    return padded_dataframe
