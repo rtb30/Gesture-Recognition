@@ -115,9 +115,10 @@ def saveto_h5_4Dmatrix(EPC_sep, h5_name, labels, EPC_count):
             df = EPC_sep[i * num_EPC + j]
 
             # populate the data array
+            #data[i, :, j, 0] = df['TimeValue']
             data[i, :, j, 0] = df['RSSI']
             data[i, :, j, 1] = df['PhaseAngle']
-
+            
     # Create the HDF5 file and save the datasets
     with h5py.File(f'HDF5_formatted/{h5_name}.h5', 'w') as f:
         f.create_dataset('data', data = data)

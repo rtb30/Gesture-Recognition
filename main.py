@@ -46,7 +46,7 @@ def main2(root_dir, rev_path):
     h5_name = 'ply_data_train'
 
     # length: [interp flag, length, max length flag]
-    length = [1, 25, 0]
+    length = [1, 30, 0]
 
     # format and filter all data and write to .csvs & .h5
     format(csv_path, csv_formatted_path, flags, length, h5_name, labels)
@@ -68,12 +68,3 @@ if __name__ == '__main__':
         root_dir = 'Data/REV4 1.5m'
         rev_path = 'CSV_formatted/REV3'
         main2(root_dir, rev_path)
-
-# TO DO LIST
-# 1. Fix ML code to fit data
-
-# no meeting today
-# friday 1-2:30PM @ dipoli lobby
-# tues pizza w interns
-# wed no meeting
-# thurs dinner 6PM, set up excel sheet
