@@ -53,6 +53,9 @@ def get_csv_all(root_dir):
     # Read each subfolder (gesture type)
     #for gesture_folder in os.listdir(root_dir):
     for i, gesture_folder in enumerate(sorted(os.listdir(root_dir), key = numerical_sort)):
+        if gesture_folder == '.DS_Store':
+            continue
+        
         gesture_path = os.path.join(root_dir, gesture_folder)
         #print(f'gesture{i+1}')
 

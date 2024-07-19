@@ -101,7 +101,7 @@ def saveto_h5_gest_EPC_sep(data_new, h5_name):
 # Data is a 4D matrix with (gestures, datapoints, EPC, and the 2 columns of RSSI and Phase data)
 def saveto_h5_4Dmatrix(EPC_sep, h5_name, labels, EPC_count):
     # number of gestures, datapoints, & EPC count
-    num_gestures = int(len(EPC_sep) / 2)
+    num_gestures = int(len(EPC_sep) / EPC_count)
     num_datapoints = EPC_sep[0].shape[0]
     num_EPC = EPC_count
 

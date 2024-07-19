@@ -65,7 +65,7 @@ def format(inputs, outputs, flags, length, h5_name, labels):
         # replace commas, change to float64s, and round
         data[i]['PhaseAngle'] = data[i]['PhaseAngle'].str.replace(',' , '.', regex = False)
         data[i]['PhaseAngle'] = pd.to_numeric(data[i]['PhaseAngle'])
-        data[i]['PhaseAngle'] = data[i]['PhaseAngle'].round(4)
+        #data[i]['PhaseAngle'] = data[i]['PhaseAngle'].round(4)
         
         # create list of numerical values for tag count
         EPC_count_list.append(data[i]['EPC'].nunique())
@@ -80,7 +80,7 @@ def format(inputs, outputs, flags, length, h5_name, labels):
 
     # find the maximum amount of tags used
     EPC_count = max(EPC_count_list)
-    #print('there are a max of ',EPC_count, ' tags used in this dataset')
+    print('there are ',EPC_count, ' tags used in this dataset')
 
     # replace EPC with numeric values
     for i in range(EPC_count):
@@ -91,10 +91,17 @@ def format(inputs, outputs, flags, length, h5_name, labels):
     # create another data set with separate numercial EPC values
     for i in range(len(data)):
         data[i]['EPC'] = data[i]['EPC'].replace(mapping)
-        EPC_sep.append(data[i][data[i]['EPC'] == 1])
-        EPC_sep.append(data[i][data[i]['EPC'] == 2])
+
+        #EPC_sep.append(data[i][data[i]['EPC'] == 1])
+        #EPC_sep.append(data[i][data[i]['EPC'] == 2])
+        #EPC_sep.append(data[i][data[i]['EPC'] == 3])
+        #EPC_sep.append(data[i][data[i]['EPC'] == 4])
+
+        for j in range(1, EPC_count + 1):
+            EPC_sep.append(data[i][data[i]['EPC'] == j])
+            print(j)
         
-    
+        
     for i in range(len(EPC_sep)):
         if(EPC_sep[i].empty == False):
         # normalize all RSSI data by EPC
@@ -103,11 +110,11 @@ def format(inputs, outputs, flags, length, h5_name, labels):
 
             # unwrap all phase data by EPC
             EPC_sep[i]['PhaseAngle'] = np.unwrap(EPC_sep[i]['PhaseAngle'])
+            # EPC_sep[i]['PhaseAngle'] = np.unwrap(EPC_sep[i]['PhaseAngle'], discont = 2.0) # adds a custom threshold
             EPC_sep[i] = EPC_sep[i].reset_index(drop = True)
 
         else:
             RSSI_min.append(1)
-        #print(EPC_sep[i])
 
     # filtering functions for non-periodic phase data of quantities around 20
     EPC_sep = savgol(EPC_sep)

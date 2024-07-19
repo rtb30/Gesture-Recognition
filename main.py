@@ -43,7 +43,7 @@ def main2(root_dir, rev_path):
 
     # flags: [csv_flag, h5_flag]
     flags = [0, 1]
-    h5_name = 'ply_data_train'
+    h5_name = 'ply_data_test'
 
     # length: [interp flag, length, max length flag]
     length = [1, 30, 0]
@@ -65,6 +65,6 @@ if __name__ == '__main__':
 
     if main2_flag == 1:
         # declare root dir that contains subfolders for each gesture type
-        root_dir = 'Data/REV4 1.5m'
-        rev_path = 'CSV_formatted/REV3'
+        root_dir = 'Data/REV6 Tests/RB'
+        rev_path = ''
         main2(root_dir, rev_path)
