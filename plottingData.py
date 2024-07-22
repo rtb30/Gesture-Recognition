@@ -81,6 +81,8 @@ def plot_3D(EPC_sep, title):
     for i in range(len(EPC_sep)):
         label.append(f'{i + 1} A1')
         label.append(f'{i + 1} A2')
+        label.append(f'{i + 2} A3')
+        label.append(f'{i + 3} A4')
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection = '3d')

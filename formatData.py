@@ -25,11 +25,14 @@ def format(inputs, outputs, flags, length, h5_name, labels):
     
     # load csv file into dataframe and change header row (deleted everything before)
     for input in inputs:
+        print(input)
         data.append(pd.read_csv(input, header = 2))
+        
 
     for i in range(len(data)):
         # change dataframe headers to correct column and select wanted data
         data[i] = data[i].iloc[0:, [0,1,4,7]]
+        #print(data[i])
 
         # rename columns
         data[i].rename(columns={'// Timestamp' : 'Timestamp'},     inplace = True)
@@ -80,7 +83,7 @@ def format(inputs, outputs, flags, length, h5_name, labels):
 
     # find the maximum amount of tags used
     EPC_count = max(EPC_count_list)
-    print('there are ',EPC_count, ' tags used in this dataset')
+    #print('there are ',EPC_count, ' tags used in this dataset')
 
     # replace EPC with numeric values
     for i in range(EPC_count):
@@ -92,15 +95,8 @@ def format(inputs, outputs, flags, length, h5_name, labels):
     for i in range(len(data)):
         data[i]['EPC'] = data[i]['EPC'].replace(mapping)
 
-        #EPC_sep.append(data[i][data[i]['EPC'] == 1])
-        #EPC_sep.append(data[i][data[i]['EPC'] == 2])
-        #EPC_sep.append(data[i][data[i]['EPC'] == 3])
-        #EPC_sep.append(data[i][data[i]['EPC'] == 4])
-
         for j in range(1, EPC_count + 1):
-            EPC_sep.append(data[i][data[i]['EPC'] == j])
-            print(j)
-        
+            EPC_sep.append(data[i][data[i]['EPC'] == j])       
         
     for i in range(len(EPC_sep)):
         if(EPC_sep[i].empty == False):
@@ -117,8 +113,8 @@ def format(inputs, outputs, flags, length, h5_name, labels):
             RSSI_min.append(1)
 
     # filtering functions for non-periodic phase data of quantities around 20
-    EPC_sep = savgol(EPC_sep)
-    EPC_sep = gaussian(EPC_sep)
+    #EPC_sep = savgol(EPC_sep)
+    #EPC_sep = gaussian(EPC_sep)
 
     # find the maximum length of data in all EPC dataframes
     # we can technically set this to whatever we want

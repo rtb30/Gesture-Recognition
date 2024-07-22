@@ -53,18 +53,18 @@ def main2(root_dir, rev_path):
 
 if __name__ == '__main__':
     # define flags for which function to run
-    main1_flag = 0
-    main2_flag = 1
+    main1_flag = 1
+    main2_flag = 0
 
     if main1_flag == 1:
         # define folder path and title
-        folder_path = 'Data/REV3 1.5m/7 Swipe Right'
-        title = 'G7: Swipe Right - REV3 1.5m'
-        rev_path = 'CSV_formatted/REV3'
+        folder_path = 'Data/REV6 Tests/RB1/1 Lat Raise'
+        title = 'RB1 G1'
+        rev_path = 'CSV_formatted/REV6 RB1'
         main1(folder_path, title)
 
     if main2_flag == 1:
         # declare root dir that contains subfolders for each gesture type
-        root_dir = 'Data/REV6 Tests/RB'
+        root_dir = 'Data/REV6 Tests/RB1'
         rev_path = ''
         main2(root_dir, rev_path)
