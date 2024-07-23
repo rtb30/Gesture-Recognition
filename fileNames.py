@@ -23,7 +23,8 @@ def clear_folder(folder_path, ext):
 # store the correct full path of each dataset in an array
 def get_csv_filenames(folder_path):        
     # use os to list all files in specified folder
-    csv_files = os.listdir(folder_path)
+    all_files = os.listdir(folder_path)
+    csv_files = [file for file in all_files if file.endswith('.csv') and file != '.DS_Store']
 
     # augment the name to include the full path
     for i in range(len(csv_files)):

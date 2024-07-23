@@ -25,10 +25,8 @@ def format(inputs, outputs, flags, length, h5_name, labels):
     
     # load csv file into dataframe and change header row (deleted everything before)
     for input in inputs:
-        print(input)
         data.append(pd.read_csv(input, header = 2))
         
-
     for i in range(len(data)):
         # change dataframe headers to correct column and select wanted data
         data[i] = data[i].iloc[0:, [0,1,4,7]]
@@ -113,8 +111,8 @@ def format(inputs, outputs, flags, length, h5_name, labels):
             RSSI_min.append(1)
 
     # filtering functions for non-periodic phase data of quantities around 20
-    #EPC_sep = savgol(EPC_sep)
-    #EPC_sep = gaussian(EPC_sep)
+    EPC_sep = savgol(EPC_sep)
+    EPC_sep = gaussian(EPC_sep)
 
     # find the maximum length of data in all EPC dataframes
     # we can technically set this to whatever we want

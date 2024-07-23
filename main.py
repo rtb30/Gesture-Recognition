@@ -16,11 +16,11 @@ def main1(folder_path, title):
     csv_formatted = get_output_filenames(inputs, rev_path)
 
     # flags: [csv_flag, h5_flag]
-    flags = [1, 0]
+    flags = [0, 0]
     h5_name = ''
     
     # length: [interp flag, length, max length flag]
-    length = [0, 0, 0]
+    length = [1, 20, 0]
 
     # format all data
     EPC_sep = format(inputs, csv_formatted, flags, length, h5_name, labels)
@@ -58,13 +58,13 @@ if __name__ == '__main__':
 
     if main1_flag == 1:
         # define folder path and title
-        folder_path = 'Data/REV6 Tests/RB1/1 Lat Raise'
-        title = 'RB1 G1'
+        folder_path = 'Data/REV7/SS2/2 Pushdown'
+        title = 'SS2 G2'
         rev_path = 'CSV_formatted/REV6 RB1'
         main1(folder_path, title)
 
     if main2_flag == 1:
         # declare root dir that contains subfolders for each gesture type
-        root_dir = 'Data/REV6 Tests/RB1'
+        root_dir = 'Data/REV7/SS1'
         rev_path = ''
         main2(root_dir, rev_path)
