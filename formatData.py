@@ -4,7 +4,7 @@ import pandas as pd
 pd.options.mode.chained_assignment = None  # default='warn'
 import numpy as np
 from preprocData import rolling, gaussian, savgol, detrend
-from fileSave import saveto_csv, saveto_h5_3Dmatrix, saveto_h5_gest_EPC_sep, saveto_h5_4Dmatrix
+from fileSave import saveto_h5_4Dmatrix
 from scipy.interpolate import interp1d
 from scipy.interpolate import CubicSpline
 from rdp import rdp
@@ -12,7 +12,7 @@ from rdp import rdp
 # this function formats the original data exported from the ItemTest program
 # made by IMPINJ. The output of this function returns a dataframe list
 # which contains RSSI & phase data based on EPC and iteration for 1 gesture
-def format(inputs, outputs, flags, length, h5_name, labels):
+def format(inputs, h5_flag, length, h5_name, labels):
     # init empty lists
     data = []
     EPC_sep = []
@@ -66,18 +66,9 @@ def format(inputs, outputs, flags, length, h5_name, labels):
         # replace commas, change to float64s, and round
         data[i]['PhaseAngle'] = data[i]['PhaseAngle'].str.replace(',' , '.', regex = False)
         data[i]['PhaseAngle'] = pd.to_numeric(data[i]['PhaseAngle'])
-        #data[i]['PhaseAngle'] = data[i]['PhaseAngle'].round(4)
         
         # create list of numerical values for tag count
         EPC_count_list.append(data[i]['EPC'].nunique())
-        '''
-        mapping = {'A10000000000000000000000': 1, 'A20000000000000000000000': 2}
-        data[i]['EPC'] = data[i]['EPC'].replace(mapping)
-
-        # create another data set with separate EPC values
-        EPC_sep.append(data[i][data[i]['EPC'] == 1])
-        EPC_sep.append(data[i][data[i]['EPC'] == 2])
-        '''
 
     # find the maximum amount of tags used
     EPC_count = max(EPC_count_list)
@@ -136,18 +127,10 @@ def format(inputs, outputs, flags, length, h5_name, labels):
         
         data_new.append(pd.concat(EPC_gesture_list, ignore_index = False))
 
-        # this makes the HDF5 file more confusing but here for notation
-        #data_new[i] = data_new[i].sort_values(by = 'TimeValue')
-        #data_new[i] = data_new[i].reset_index(drop = True) 
-
     print('-------------- FINISHED FORMATTING & FILTERING --------------\n')
 
     # use data to save as csv which will return and save unchanged data to h5
-    if flags[0] == 1:
-        saveto_csv(data_new, outputs)
-    if flags[1] == 1:
-        #saveto_h5_3Dmatrix(data_new, h5_name) # 3D matrix
-        #saveto_h5_gest_EPC_sep(data_new, h5_name) # each dataset is separated by gesture & EPC
+    if h5_flag == 1:
         saveto_h5_4Dmatrix(EPC_sep, h5_name, labels, EPC_count) # 4D matrix
 
     return EPC_sep
