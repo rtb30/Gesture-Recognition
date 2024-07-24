@@ -28,3 +28,4 @@ if __name__ == '__main__':
 
 # TO DO
 # change how HDF5 files are saved
+# add a way to combine data from diff participants
