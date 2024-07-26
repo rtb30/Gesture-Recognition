@@ -23,7 +23,7 @@ def main(root_dir):
 
 if __name__ == '__main__':
     # declare root dir that contains subfolders for each gesture type
-    root_dir = 'Data/REV7/1 Stephan Sigg/SS 3m'
+    root_dir = 'Data/REV7/2 Sahar Golipoor/SG 1.5m'
     main(root_dir)
 
 # TO DO
