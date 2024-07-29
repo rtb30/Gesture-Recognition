@@ -30,7 +30,6 @@ def format(inputs, h5_flag, length, h5_name, labels):
     for i in range(len(data)):
         # change dataframe headers to correct column and select wanted data
         data[i] = data[i].iloc[0:, [0,1,4,7]]
-        #print(data[i])
 
         # rename columns
         data[i].rename(columns={'// Timestamp' : 'Timestamp'},     inplace = True)
@@ -55,6 +54,8 @@ def format(inputs, h5_flag, length, h5_name, labels):
 
         # remove excess time columns, good place to print data
         data[i] = data[i].iloc[0:, [0,1,2,3]]
+        #print('This data is properly formatted without changing any numerical data:')
+        #print(data[i], '\n')
 
         # correctly change RSSI column to numbers
         if(data[i]['RSSI'].dtype != 'int64'):
@@ -63,29 +64,34 @@ def format(inputs, h5_flag, length, h5_name, labels):
             data[i]['RSSI'] = data[i]['RSSI'].str.replace(r'[^\d.-]', '-', regex = True)
             data[i]['RSSI'] = pd.to_numeric(data[i]['RSSI'], errors='coerce')
 
-        # replace commas, change to float64s, and round
+        # replace commas and change to float64s
         data[i]['PhaseAngle'] = data[i]['PhaseAngle'].str.replace(',' , '.', regex = False)
         data[i]['PhaseAngle'] = pd.to_numeric(data[i]['PhaseAngle'])
+        #print('This data adjusts some RSSI and phase format:')
+        #print(data[i], '\n')
         
         # create list of numerical values for tag count
         EPC_count_list.append(data[i]['EPC'].nunique())
 
     # find the maximum amount of tags used
     EPC_count = max(EPC_count_list)
-    #print('there are ',EPC_count, ' tags used in this dataset')
+    print('\nThere are ',EPC_count, ' tags used in this dataset')
+    EPC_count = 4
+    print('I changed there to be 9 EPCs\n')
 
     # replace EPC with numeric values
     for i in range(EPC_count):
         mapping[f'A{i + 1}0000000000000000000000'] = (i + 1)
-
     #print(mapping)
 
     # create another data set with separate numercial EPC values
     for i in range(len(data)):
         data[i]['EPC'] = data[i]['EPC'].replace(mapping)
+        #print('This data changes EPC to numerical values:')
+        #print(data[i], '\n')
 
         for j in range(1, EPC_count + 1):
-            EPC_sep.append(data[i][data[i]['EPC'] == j])       
+            EPC_sep.append(data[i][data[i]['EPC'] == j])
         
     for i in range(len(EPC_sep)):
         if(EPC_sep[i].empty == False):
@@ -95,11 +101,15 @@ def format(inputs, h5_flag, length, h5_name, labels):
 
             # unwrap all phase data by EPC
             EPC_sep[i]['PhaseAngle'] = np.unwrap(EPC_sep[i]['PhaseAngle'])
-            # EPC_sep[i]['PhaseAngle'] = np.unwrap(EPC_sep[i]['PhaseAngle'], discont = 2.0) # adds a custom threshold
+            #EPC_sep[i]['PhaseAngle'] = np.unwrap(EPC_sep[i]['PhaseAngle'], discont = 2.0) # adds a custom threshold
             EPC_sep[i] = EPC_sep[i].reset_index(drop = True)
 
         else:
             RSSI_min.append(1)
+
+    #for i in range(len(EPC_sep)):
+        #print(f'This is EPC = {i+1} data')
+        #print(EPC_sep[i], '\n')
 
     # filtering functions for non-periodic phase data of quantities around 20
     EPC_sep = savgol(EPC_sep)
