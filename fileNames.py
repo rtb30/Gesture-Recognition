@@ -19,6 +19,13 @@ def clear_folder(folder_path, ext):
         except OSError as e:
             print(f"Error: {file} - {e.strerror}")
 
+def clear_directory(directory_path, ext):
+    for gesture_folder in sorted(os.listdir(directory_path)):
+        gesture_path = os.path.join(directory_path, gesture_folder)
+        clear_folder(gesture_path, ext)
+
+    print('-------------- FINISHED DELETING DIRECTORY --------------\n')
+
 # this function finds all csv files inside a specified folder from main to
 # store the correct full path of each dataset in an array
 def get_csv_filenames(folder_path):        

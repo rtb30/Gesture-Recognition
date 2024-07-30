@@ -46,9 +46,11 @@ def combine_participants(participant_directories, combined_directory):
     print('-------------- FINISHED COMBINING DATA --------------\n')
         
 def get_participants():
-    participant_directories = ['Data/REV8/1',
-                               'Data/REV8/2',
-                               'Data/REV8/3',
-                               'Data/REV8/4']
+    participant_directories = ['Data/REV7/1 Stephan Sigg/SS 3m',
+                               'Data/REV7/2 Sahar Golipoor/SG 3m',
+                               'Data/REV7/3 Noemi Ippolito/NI 3m',
+                               'Data/REV7/4 Giorgio Micaletto/GM 3m',
+                               'Data/REV7/5 Ying Liu/YL 3m',
+                               'Data/REV7/7 Ines Mesquita/IM 3m']
     
     return participant_directories

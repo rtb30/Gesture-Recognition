@@ -72,12 +72,13 @@ def format(inputs, h5_flag, length, h5_name, labels):
         
         # create list of numerical values for tag count
         EPC_count_list.append(data[i]['EPC'].nunique())
+        #print(f'gesture number {i+1} has {EPC_count_list[i]} tags, file name {inputs[i]}')
 
     # find the maximum amount of tags used
     EPC_count = max(EPC_count_list)
-    print('\nThere are ',EPC_count, ' tags used in this dataset')
-    EPC_count = 4
-    print('I changed there to be 9 EPCs\n')
+    print(f'There are {EPC_count} tags used in this dataset\n')
+    #EPC_count = 9
+    #print(f'I changed there to be {EPC_count} EPCs\n')
 
     # replace EPC with numeric values
     for i in range(EPC_count):
