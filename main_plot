@@ -1,0 +1,32 @@
+# import functions
+from formatData import format
+from plottingData import plot_2D, plot_3D
+from fileNames import get_csv_filenames, clear_folder
+
+# this function is to reformat and plot a gesture
+def main(root_dir, title):
+    # set unneeded variables
+    labels = 0
+    h5_flag = 0
+    h5_name = ''
+
+    # define filenames for inputs
+    inputs = get_csv_filenames(root_dir)
+    
+    # length: [interp flag, length, max length flag]
+    length = [0, 20, 0]
+
+    # format all data
+    EPC_sep = format(inputs, h5_flag, length, h5_name, labels)
+
+    # plot all 3 datasets separated by EPC into 2 graphs (Phase & RSSI)
+    #plot_2D(title, EPC_sep)
+
+    # plot all 3 datasets on a 3D plot (x, y, z) = (RSSI, EPC, phase)
+    plot_3D(EPC_sep, title)
+
+if __name__ == '__main__':
+    # define single gesture path and title for plot
+    root_dir = 'Data/RANDOM TESTING/Moving Desk'
+    title = 'Moving Desk'
+    main(root_dir, title)

@@ -51,6 +51,8 @@ def get_participants():
                                'Data/REV7/3 Noemi Ippolito/NI 3m',
                                'Data/REV7/4 Giorgio Micaletto/GM 3m',
                                'Data/REV7/5 Ying Liu/YL 3m',
-                               'Data/REV7/7 Ines Mesquita/IM 3m']
+                               'Data/REV7/7 Ines Mesquita/IM 3m',
+                               'Data/REV7/8 Maxwell Sun/3m',
+                               'Data/REV7/9 Niilo Heimonen/NH 3m']
     
     return participant_directories

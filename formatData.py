@@ -76,9 +76,8 @@ def format(inputs, h5_flag, length, h5_name, labels):
 
     # find the maximum amount of tags used
     EPC_count = max(EPC_count_list)
+    EPC_count = 4
     print(f'There are {EPC_count} tags used in this dataset\n')
-    #EPC_count = 9
-    #print(f'I changed there to be {EPC_count} EPCs\n')
 
     # replace EPC with numeric values
     for i in range(EPC_count):
