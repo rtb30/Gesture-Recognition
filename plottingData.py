@@ -8,7 +8,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 # this function uses 2D plots to show similarities between phase vs time and 
 # RSSI vs time graphs dependent on iteration, also separated by EPC
-def plot_2D(title, EPC_sep):
+def plot_2D(title, EPC_sep, EPC_count):
     # create figure of 2x2 subplot region
     fig, axs = plt.subplots(2, 2, figsize=(12, 8))
 
@@ -69,6 +69,104 @@ def plot_2D(title, EPC_sep):
 
     # show the figure
     plt.show()
+
+def plot_2D_new(title, EPC_sep):
+    # EPC values assumed to be 1, 2, 3, and 4
+    epcs = [1, 2, 3, 4]
+    
+    # Set up the figure and axes for 4 subplots
+    fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+    axes = axes.flatten()  # Flatten to easily iterate over them
+    
+    # Colors for plotting
+    colors = plt.cm.get_cmap('tab10', len(EPC_sep))
+
+    for i, epc in enumerate(epcs):
+        ax = axes[i]
+        ax.set_title(f'EPC {epc}')
+        ax.set_xlabel('RSSI')
+        ax.set_ylabel('PhaseAngle')
+        
+        # Plot each dataframe for the current EPC
+        for idx, df in enumerate(EPC_sep):
+            # Filter dataframe for the current EPC
+            epc_data = df[df['EPC'] == epc]
+            if not epc_data.empty:
+                ax.plot(
+                    epc_data['RSSI'], epc_data['PhaseAngle'],
+                    marker='o', linestyle='-', color=colors(idx),
+                    #label=f'DataFrame {idx}'
+                )
+
+                # Highlight the starting point
+                ax.plot(
+                    epc_data['RSSI'].iloc[0], epc_data['PhaseAngle'].iloc[0],
+                    marker='s', color=colors(idx), markersize=10
+                )
+                
+                # Highlight the ending point
+                ax.plot(
+                    epc_data['RSSI'].iloc[-1], epc_data['PhaseAngle'].iloc[-1],
+                    marker='^', color=colors(idx), markersize=10
+                )
+        
+        # Add legend if any data was plotted
+        if ax.has_data():
+            ax.legend()
+    
+    plt.tight_layout()
+    plt.show()
+
+def plot_gesture_data_interactive(df_list):
+    # EPC values assumed to be 1, 2, 3, and 4
+    epcs = [1, 2, 3, 4]
+    
+    # Colors for plotting
+    colors = plt.cm.get_cmap('tab10', len(df_list))
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    
+    for epc in epcs:
+        # Create a new figure for each EPC
+        ax.clear()
+        ax.set_title(f'EPC {epc}')
+        ax.set_xlabel('RSSI')
+        ax.set_ylabel('PhaseAngle')
+
+        # Plot each dataframe for the current EPC one by one
+        for idx, df in enumerate(df_list):
+            # Filter dataframe for the current EPC
+            epc_data = df[df['EPC'] == epc]
+            if not epc_data.empty:
+                ax.plot(
+                    epc_data['RSSI'], epc_data['PhaseAngle'],
+                    marker='o', linestyle='-', color=colors(idx),
+                    label=f'DataFrame {idx}'
+                )
+
+                # Highlight the starting point
+                ax.plot(
+                    epc_data['RSSI'].iloc[0], epc_data['PhaseAngle'].iloc[0],
+                    marker='s', color=colors(idx), markersize=10, label=f'Start (DF {idx})'
+                )
+                
+                # Highlight the ending point
+                ax.plot(
+                    epc_data['RSSI'].iloc[-1], epc_data['PhaseAngle'].iloc[-1],
+                    marker='^', color=colors(idx), markersize=10, label=f'End (DF {idx})'
+                )
+
+                plt.draw()  # Update the plot
+                plt.pause(0.5)  # Pause for a short moment
+                input(f'Press Enter to continue to the next curve for EPC {epc}...')
+        
+        # Display legend if any data was plotted
+        if ax.has_data():
+            ax.legend()
+
+        input(f'Press Enter to proceed to the next EPC plot...')
+
+    plt.close(fig)
 
 # this function makes a 3D plot with RSSI in the x, EPC in the y, and phase 
 # in the z. This is to show similarities between RSSI vs phase graphs dependent

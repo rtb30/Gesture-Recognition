@@ -58,11 +58,15 @@ def get_csv_all(root_dir):
     csv_path = []
     labels = []
 
+    for item in os.listdir(root_dir):
+        if item == '.DS_Store':
+            file_path = os.path.join(root_dir, item)
+            os.remove(file_path)
+            #print(f'Removed {file_path}')
+
     # Read each subfolder (gesture type)
     #for gesture_folder in os.listdir(root_dir):
     for i, gesture_folder in enumerate(sorted(os.listdir(root_dir), key = numerical_sort)):
-        if gesture_folder == '.DS_Store':
-            continue
         
         gesture_path = os.path.join(root_dir, gesture_folder)
         #print(f'gesture{i+1}')
@@ -73,6 +77,9 @@ def get_csv_all(root_dir):
                 csv_path.append(os.path.join(gesture_path, csv_file))
                 name = f'gesture{i + 1}'
                 labels.append(name)
+
+        #if i >= 8:
+        #    break
 
     return csv_path, labels
 

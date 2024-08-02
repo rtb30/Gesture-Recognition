@@ -4,7 +4,7 @@ import pandas as pd
 pd.options.mode.chained_assignment = None  # default='warn'
 import numpy as np
 from preprocData import rolling, gaussian, savgol, detrend
-from fileSave import saveto_h5_4Dmatrix
+from fileSaveHDF5 import saveto_h5_4Dmatrix
 from scipy.interpolate import interp1d
 from scipy.interpolate import CubicSpline
 from rdp import rdp
@@ -25,6 +25,7 @@ def format(inputs, h5_flag, length, h5_name, labels):
     
     # load csv file into dataframe and change header row (deleted everything before)
     for input in inputs:
+        #print(f'Trying to read csv file: {input}')
         data.append(pd.read_csv(input, header = 2))
         
     for i in range(len(data)):
@@ -76,7 +77,7 @@ def format(inputs, h5_flag, length, h5_name, labels):
 
     # find the maximum amount of tags used
     EPC_count = max(EPC_count_list)
-    EPC_count = 4
+    #EPC_count = 4
     print(f'There are {EPC_count} tags used in this dataset\n')
 
     # replace EPC with numeric values
@@ -137,13 +138,32 @@ def format(inputs, h5_flag, length, h5_name, labels):
         
         data_new.append(pd.concat(EPC_gesture_list, ignore_index = False))
 
+    #count = 0
+    #sum = 0
+    #for j in range(1, EPC_count + 1):
+    #    print(f'Finding A{j} tags')
+    #    for i in range(len(data_new)):
+    #        sum = sum + data_new[i]['EPC'].value_counts().get(j, 0)
+    #
+    #        count = count + 1
+    #
+    #        if(count == 20):
+    #            print(f'{labels[i]} has a total of {sum} tags')
+    #            count = 0
+    #            sum = 0
+    #    print()
+
+    #for i in range(len(data_new)):
+    #        num_EPC = data_new[i]['EPC'].value_counts().get(4, 0)
+    #        print(f'{labels[i]} has {num_EPC} A1 tags')
+
     print('-------------- FINISHED FORMATTING & FILTERING --------------\n')
 
     # use data to save as csv which will return and save unchanged data to h5
     if h5_flag == 1:
         saveto_h5_4Dmatrix(EPC_sep, h5_name, labels, EPC_count) # 4D matrix
 
-    return EPC_sep
+    return EPC_sep, data_new
 
 # this function is to simplify dataframe by using the Ramer-Douglas-Peucker algorithm and then interpolating
 # the data to the fixed length. If the length is smaller than the target length, the function sends the 

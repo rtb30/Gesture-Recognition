@@ -19,8 +19,23 @@ Data          : Folder that contains all data. There are multiple reivisions of 
     REV6 RB5:   90 deg rotation with 5  reps per gesture & 4 tags
     
     REV7: 
-        - Each participant takes 3 full tests, 0 deg 1.5m, 0 deg 3m, and 90 deg 1.5m
-        - Each test is consistent of 15 repitions per each of 21 gestures with 9 RFID tags
+        - Each participant does 20 repetitions of 21 gestures at 3m 0deg
+        - Each participant does at least one of the following:
+            - 10 repetitions of 21 gestures at 1.5m 0deg
+            - 10 repetitions of 21 gestures at 1.5m 90deg
+            - 10 repetitions of 21 gestures at 3m   90deg
+            
+        ORIENTATION:
+        - 01 SS: Unknown
+        - 02 SG: Unknown
+        - 03 NI: Unknown
+        - 04 GM: Unknown
+        - 05 YL: All facing up by EPC (left arm tags are good)
+        - 06 RB: All facing up by EPC (left arm tags are good)
+        - 07 IM: All facing up by EPC (left arm tags are good)
+        - 08 MS: All facing up by EPC (left arm tags are good)
+        - 09 NH: All tags 0 deg
+        - 10 JH: All tags 0 deg
 
 Graphs        : Folder that contains all graphs from processing the exported data.
     REV2: Original
