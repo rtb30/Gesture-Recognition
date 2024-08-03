@@ -41,9 +41,9 @@ def combine_participants(participant_directories, combined_directory):
     for i in range(participant_count):
         for j in range(len(all_gesture_paths[0])):
             copy_files(all_gesture_paths[i][j], combined_gesture_directories[j])
-        print(f'Just copied {len(all_gesture_paths[0])} gestures for participant {i+1}')
+        #print(f'Just copied {len(all_gesture_paths[0])} gestures for participant {i+1}')
     
-    print('-------------- FINISHED COMBINING DATA --------------\n')
+    print('----------- FINISHED COMBINING TRAINING DATA ------------\n')
         
 def get_participants():
     participant_directories = ['Data/REV7/1 Stephan Sigg/SS 3m',

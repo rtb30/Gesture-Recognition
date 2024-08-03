@@ -22,13 +22,13 @@ def main(root_dir, title):
     # plot all 3 datasets separated by EPC into 2 graphs (Phase & RSSI)
     #plot_2D_new(title, data_new)
 
-    plot_gesture_data_interactive(data_new)
+    #plot_gesture_data_interactive(data_new)
 
     # plot all 3 datasets on a 3D plot (x, y, z) = (RSSI, EPC, phase)
     #plot_3D(EPC_sep, title)
 
 if __name__ == '__main__':
     # define single gesture path and title for plot
-    root_dir = 'Data/REV7/2 Sahar Golipoor/SG 3m/3 Lift'
-    title = 'NH 3m G2'
+    root_dir = 'Data/Old Data REV1-5/REV2 1.5m/2 Pushdown'
+    title = ''
     main(root_dir, title)

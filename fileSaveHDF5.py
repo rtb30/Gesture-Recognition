@@ -4,7 +4,7 @@ import h5py
 # this function is to take a list of all the dataframes and create an HDF5 file. The output is:
 # 2 datasets - Data and Label
 # Data is a 4D matrix with (gestures, datapoints, EPC, and the 2 columns of RSSI and Phase data)
-def saveto_h5_4Dmatrix(EPC_sep, h5_name, labels, EPC_count):
+def saveto_h5_4Dmatrix(EPC_sep, h5_name, labels, EPC_count, RSSI_flag):
     # number of gestures, datapoints, & EPC count
     num_gestures = int(len(EPC_sep) / EPC_count)
     num_datapoints = EPC_sep[0].shape[0]
@@ -33,4 +33,7 @@ def saveto_h5_4Dmatrix(EPC_sep, h5_name, labels, EPC_count):
         f.create_dataset('label', data = np.array(labels, dtype = dt))
         #f.create_dataset('label', data = np.array(labels))
 
-    print('-------------------- .h5 file was saved --------------------\n')
+    if(RSSI_flag == 1):
+        print('---------------- TRAINING HDF5 FILE SAVED ---------------\n')
+    else:
+        print('---------------- TESTING HDF5 FILE SAVED ----------------\n')

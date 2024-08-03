@@ -36,6 +36,8 @@ Data          : Folder that contains all data. There are multiple reivisions of 
         - 08 MS: All facing up by EPC (left arm tags are good)
         - 09 NH: All tags 0 deg
         - 10 JH: All tags 0 deg
+        - 11 MA: All tags 0 deg (didn't fully complete study)
+        - 12 SH: All tags 0 deg (copied 3m G17 from HS)
 
 Graphs        : Folder that contains all graphs from processing the exported data.
     REV2: Original

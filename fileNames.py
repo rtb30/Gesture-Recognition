@@ -24,7 +24,7 @@ def clear_directory(directory_path, ext):
         gesture_path = os.path.join(directory_path, gesture_folder)
         clear_folder(gesture_path, ext)
 
-    print('-------------- FINISHED DELETING DIRECTORY --------------\n')
+    print('\n-------------- FINISHED DELETING DIRECTORY --------------\n')
 
 # this function finds all csv files inside a specified folder from main to
 # store the correct full path of each dataset in an array

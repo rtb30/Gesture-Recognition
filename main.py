@@ -4,41 +4,52 @@ from fileNames import get_csv_all, clear_folder, clear_directory
 from combine import combine_participants, get_participants
 
 # this function is to reformat and save a .h5 file for set of gestures
-def main(root_dir, combined_directory, combine_flag):
-    ############### delete exsiting folders and combine participant data ################
-    if(combine_flag == 1):
-        clear_folder('HDF5_formatted', '*.h5')
-        clear_directory('Combined Data/1.5m', '*.csv')
-        participant_directories = get_participants()
-        #combine_participants(participant_directories, combined_directory)
+def main(combined_directory, root_dir):
 
-    ############ get csv_path from root directory and labels for all gestures ############
-    csv_path, labels = get_csv_all(root_dir)
+    ############################ SET FLAGS ##########################
+    h5_flag = 1         # determines if h5 files are saved
+    length = [1, 20, 0] # [interp flag, length, max length flag]
+    data_flag = [1, 1]
 
-    ##################################### h5 variables ###################################
-    h5_flag = 0
+    #################### COMPLETE TRAINING DATA #####################
+    # clear the combined data directory and HDF5 folder
+    clear_directory('Combined Data/1.5m', '*.csv')
+    clear_folder('HDF5_formatted', '*.h5')
+
+    # find all wanted participants to be apart of training data
+    # and store in the combined directory
+    participant_directories = get_participants()
+    combine_participants(participant_directories, combined_directory)
+    csv_path_combined, labels_combined = get_csv_all(combined_directory)
+
+    # define h5 file name 
     h5_name = 'ply_data_train'
 
-    ################### length: [interp flag, length, max length flag] ###################
-    length = [1, 20, 0]
+    # format data
+    train_normalization = format(csv_path_combined, h5_flag, length, h5_name, labels_combined, data_flag)
 
-    ################ format and filter all data and write to .csvs & .h5 #################
-    format(csv_path, h5_flag, length, h5_name, labels)
+    ###################### COMPLETE TESTING DATA #####################
+    # get all csv files from testing participant directory
+    csv_path, labels = get_csv_all(root_dir)
+
+    # define h5 file name
+    h5_name = 'ply_data_test'
+
+    # format data
+    format(csv_path, h5_flag, length, h5_name, labels, train_normalization)
 
 if __name__ == '__main__':
-    # declare root dir that contains subfolders for each gesture & set combine flag
-    root_dir = 'Combined Data/3m'
-
+    #declare root dir that contains subfolders for each gesture & set combine flag
     combined_directory = 'Combined Data/3m'
-    combine_flag = 1
 
-    main(root_dir, combined_directory, combine_flag)
+    # declare root dir that contains subfolders for each gesture for test participant
+    root_dir = 'Data/REV7/6 Rick Brophy/RB 3m'
+
+    main(combined_directory, root_dir)
 
 # TO DO
-# 1. fix normalization with RSSI (by EPC and by entire set)
-# 2. repeat normalization but with phase
-# 3. remove A5 from all data
-# 4. try interpolating with a cubic function instead of linear
+# 1. fix data normalization EPC
+# 3. try interpolating with a cubic function instead of linear
 # 5. try interpolating at different places instead of linear.
 # 6. remove data if there is less than a certain amount of reads?????
 # 7. finish recording general patterns, can we remove any single handed gestures?
