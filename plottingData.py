@@ -171,7 +171,7 @@ def plot_gesture_data_interactive(df_list):
 # this function makes a 3D plot with RSSI in the x, EPC in the y, and phase 
 # in the z. This is to show similarities between RSSI vs phase graphs dependent
 # on iteration, also separated by EPC
-def plot_3D(EPC_sep, title):
+def plot_3D(EPC_sep):
     x = []
     y = []
     z = []
@@ -194,7 +194,6 @@ def plot_3D(EPC_sep, title):
     ax.set_xlabel('Normalized RSSI')
     ax.set_ylabel('EPC')
     ax.set_zlabel('Phase Angle (rads)')
-    ax.set_title(title)
 
     #ax.legend()
 

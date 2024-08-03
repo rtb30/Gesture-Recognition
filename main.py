@@ -1,6 +1,6 @@
 # import functions
 from formatData import format
-from fileNames import get_csv_all, clear_folder, clear_directory
+from fileManage import get_csv_all, clear_folder, clear_directory
 from combine import combine_participants, get_participants
 
 # this function is to reformat and save a .h5 file for set of gestures
@@ -13,7 +13,7 @@ def main(combined_directory, root_dir):
 
     #################### COMPLETE TRAINING DATA #####################
     # clear the combined data directory and HDF5 folder
-    clear_directory('Combined Data/1.5m', '*.csv')
+    clear_directory('Combined Data/3m', '*.csv')
     clear_folder('HDF5_formatted', '*.h5')
 
     # find all wanted participants to be apart of training data
@@ -48,11 +48,11 @@ if __name__ == '__main__':
     main(combined_directory, root_dir)
 
 # TO DO
-# 1. fix data normalization EPC
-# 3. try interpolating with a cubic function instead of linear
-# 5. try interpolating at different places instead of linear.
+# 1. what other augmentation techniques are there? do i know if the ones im using are working?
+# 4. fix data normalization by EPC
+# 5. fix rdp interp
 # 6. remove data if there is less than a certain amount of reads?????
-# 7. finish recording general patterns, can we remove any single handed gestures?
+# 7. finish recording general patterns, can we remove any gestures?
     # if rssi and phase doesnt change much, set all to 0
         # ^for single handed gestures^
 # 8. did desk height have to do with high reads? what did?
@@ -61,5 +61,9 @@ if __name__ == '__main__':
     # gaussian
     # jittering?
     # others?
-# 10. have giorgio help with fitting data
-# 11. more efficient script
+# 10. are the batches generated randomly?
+
+# RETRY AFTER ACCURACY = 70%
+# 1. interpolation length
+# 2. convolution layers
+# 3. model preprocessing

@@ -1,23 +1,7 @@
 # import
 import os
-from fileNames import numerical_sort
+from fileManage import get_gesture_folders
 import shutil
-
-# this function is to return a list of directory paths of each gesture per 1 participant
-# sorted numerically
-def get_gesture_folders(participant_directory):
-    # create empty list for gesture paths
-    gesture_path = []
-
-    # find all the gesture folder per participant and sort them numerically
-    for gesture_folder in sorted(os.listdir(participant_directory), key = numerical_sort):
-        # ignore DS_store files (fuck you apple)
-        if gesture_folder == '.DS_Store':
-            continue
-        # this is a list of all the path names to each gesture per 1 participant
-        gesture_path.append(os.path.join(participant_directory, gesture_folder))
-
-    return gesture_path
 
 def copy_files(gesture_directory, destination_directory):
     # walks through directory tree to pull out csv file paths
