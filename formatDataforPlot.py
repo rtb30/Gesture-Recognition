@@ -2,9 +2,11 @@
 import pandas as pd
 # this gets rid of some random warning when separating data into EPC1 & EPC2
 pd.options.mode.chained_assignment = None  # default='warn'
-from preprocData import rolling, gaussian, savgol, detrend
+from smoothData import rolling, gaussian, savgol, detrend
 from interpData import RDP_interpolate, interpolate_data, pad_data_zeros
-from normalizeData import RSSI_normalize_EPC, RSSI_normalize_train, phase_normalize_train
+from normalizeData import (RSSI_normalize_EPC, RSSI_normalize_train, phase_normalize_train, 
+                           phase_scale_train, phase_standardize_train, phase_log_transform_train, 
+                           phase_quantile_transform_train)
 from augmentData import add_constant_offset, sub_constant_offset, add_gaussian_noise, add_offset_and_noise
 
 # this function formats the original data exported from the ItemTest program
@@ -16,9 +18,10 @@ def format(inputs, length):
     # init empty lists
     data = []
     EPC_sep = []
-    RSSI_min_list = []
     data_new = []
     EPC_count_list = []
+    RSSI_val = []
+    phase_val = []
 
     #init empty dictionary
     mapping = {}
@@ -58,8 +61,6 @@ def format(inputs, length):
         EPC_count_list.append(data[i]['EPC'].nunique())
         #print(f'gesture number {i+1} has {EPC_count_list[i]} tags, file name {inputs[i]}')
 
-        RSSI_min_list.append(min(data[i]['RSSI']))
-
     # find the maximum amount of tags used
     EPC_count = max(EPC_count_list)
     #EPC_count = 4
@@ -85,15 +86,22 @@ def format(inputs, length):
     #    print(EPC_sep[i], '\n')
     
     #################################### NORMALIZE DATA ####################################
-    # normalize RSSI based on preferences
-    EPC_sep, RSSI_min = RSSI_normalize_train(EPC_sep, RSSI_min_list, 1)
-    #EPC_sep, phase_max = phase_normalize_train(EPC_sep, data_flag[1])
+    # RSSI normalization options
+    EPC_sep, RSSI_val = RSSI_normalize_train(EPC_sep, 1, RSSI_val)
     #EPC_sep, RSSI_min = RSSI_normalize_EPC(EPC_sep, EPC_count, data_flag[0])
 
+    # phase normalization options
+    EPC_sep = phase_log_transform_train(EPC_sep)
+    EPC_sep, phase_val = phase_normalize_train(EPC_sep, 1, phase_val)
+    #EPC_sep, phase_val = phase_standardize_train(EPC_sep, 1, phase_val)
+    #EPC_sep, phase_val = phase_scale_train(EPC_sep, 1, phase_val)
+    #EPC_sep, phase_val = phase_quantile_transform_train(EPC_sep, 1, phase_val)
+    
     print(f'--------------------- NORMALIZED DATA ------------------')
-    for i in range(len(EPC_sep)):
-        print('EPC data set:')
-        print(EPC_sep[i], '\n')
+    #for i in range(len(EPC_sep)):
+    #    if i <= 24:
+    #        print('EPC data set:')
+    #        print(EPC_sep[i], '\n')
     
     ############################# SMOOTH AND INTERPOLATE DATA #############################
     # filtering functions for non-periodic phase data of quantities around 20
@@ -116,10 +124,11 @@ def format(inputs, length):
                 #EPC_sep[i] = RDP_interpolate(EPC_sep[i], length[1], method, 0.5)
                 EPC_sep[i] = interpolate_data(EPC_sep[i], length[1], method)
             else:
-                EPC_sep[i] = pad_data_zeros(EPC_sep[i], length[1])
+                EPC_sep[i] = pad_data_zeros(EPC_sep[i], length[1], i, EPC_count)
 
-            print('EPC data set:')
-            print(EPC_sep[i], '\n')
+            #if i <= 24:
+            #    print('EPC data set:')
+            #    print(EPC_sep[i], '\n')
 
     ################################## CONCATENATE EPC DATA #################################
     # concatenate separated EPC data into singular dataframe sorted chronologically again

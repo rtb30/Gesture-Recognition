@@ -73,11 +73,17 @@ def interpolate_data(data, target_length, method):
     return interpolated_df
 
 # this function pads zeros when certain dataframes in the EPC_sep list are empty
-def pad_data_zeros(EPC_sep, max_length):
+def pad_data_zeros(EPC_sep, max_length, i, EPC_count):
 
     padding = np.zeros((max_length - len(EPC_sep), EPC_sep.shape[1]))
     padded_data = np.vstack((EPC_sep, padding))
 
     padded_dataframe = pd.DataFrame(padded_data, columns = EPC_sep.columns)
+
+    i += 1
+    EPC = i % EPC_count
+    #print(f'This data frame was empty, i think its from tag {EPC}')
+    for j in range(len(padded_dataframe)):
+        padded_dataframe['EPC'][j] = EPC
 
     return padded_dataframe

@@ -175,27 +175,25 @@ def plot_3D(EPC_sep):
     x = []
     y = []
     z = []
-    label = []
-    for i in range(len(EPC_sep)):
-        label.append(f'{i + 1} A1')
-        label.append(f'{i + 1} A2')
-        label.append(f'{i + 1} A3')
-        label.append(f'{i + 1} A4')
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection = '3d')
 
+    # Colors for plotting
+    colors = plt.cm.get_cmap('tab10', len(EPC_sep))
+
     for i in range(len(EPC_sep)):
+        if(EPC_sep[i]['RSSI'][0] == 0):
+            continue
+
         x.append(EPC_sep[i]['RSSI'])
         y.append(EPC_sep[i]['EPC'])
         z.append(EPC_sep[i]['PhaseAngle'])
-        ax.plot(x[i], y[i], z[i], marker = 'o', label = label[i]) #c = c[i] for specific colors
+        ax.plot(x[-1], y[-1], z[-1], marker = 'o', color = colors(i)) #c = c[i] for specific colors
 
     ax.set_xlabel('Normalized RSSI')
     ax.set_ylabel('EPC')
     ax.set_zlabel('Phase Angle (rads)')
-
-    #ax.legend()
 
     print("-------------------- FINISHED 3D PLOTTING --------------------\n")
 

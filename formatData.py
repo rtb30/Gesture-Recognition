@@ -3,25 +3,25 @@ import pandas as pd
 # this gets rid of some random warning when separating data into EPC1 & EPC2
 pd.options.mode.chained_assignment = None  # default='warn'
 import numpy as np
-from preprocData import rolling, gaussian, savgol, detrend
+from smoothData import rolling, gaussian, savgol, detrend
 from fileSaveHDF5 import saveto_h5_4Dmatrix
 from interpData import RDP_interpolate, interpolate_data, pad_data_zeros
-from normalizeData import RSSI_normalize_EPC, RSSI_normalize_train, phase_normalize_train
+from normalizeData import (RSSI_normalize_train, RSSI_normalize_EPC, phase_normalize_train, 
+                           phase_normalize_EPC, phase_standardize_train, phase_scale_train, 
+                           phase_log_transform_train, phase_quantile_transform_train)
 from augmentData import add_constant_offset, sub_constant_offset, add_gaussian_noise, add_offset_and_noise
 
 # this function formats the original data exported from the ItemTest program
 # made by IMPINJ. The output of this function returns a dataframe list
 # which contains RSSI & phase data based on EPC and iteration for 1 gesture
-def format(inputs, h5_flag, length, h5_name, labels, data_flag):
+def format(inputs, h5_flag, length, h5_name, labels, norm_flag, RSSI_val, phase_val):
 
     ############################### FUNCTION VARIABLES ###############################
     # init empty lists
     data = []
     EPC_sep = []
-    RSSI_min_list = []
     data_new = []
     EPC_count_list = []
-    phase_max = 0
 
     #init empty dictionary
     mapping = {}
@@ -38,7 +38,7 @@ def format(inputs, h5_flag, length, h5_name, labels, data_flag):
         data[i].columns = data[i].columns.str.strip()
 
         # rename timestamp column
-        data[i].rename(columns={'// Timestamp' : 'Timestamp'},     inplace = True)
+        data[i].rename(columns={'// Timestamp' : 'Timestamp'}, inplace = True)
 
         # parse timestamp data and create new column to have comparable time values
         data[i]['Timestamp'] = pd.to_datetime(data[i]['Timestamp'])
@@ -60,10 +60,6 @@ def format(inputs, h5_flag, length, h5_name, labels, data_flag):
         # create list of numerical values for tag count
         EPC_count_list.append(data[i]['EPC'].nunique())
         #print(f'gesture number {i+1} has {EPC_count_list[i]} tags, file name {inputs[i]}')
-
-        #create list of min RSSI and max phase values
-        if(data_flag[0] == 1):
-            RSSI_min_list.append(min(data[i]['RSSI']))
 
     # find the maximum amount of tags used
     EPC_count = max(EPC_count_list)
@@ -90,7 +86,7 @@ def format(inputs, h5_flag, length, h5_name, labels, data_flag):
         for j in range(1, EPC_count + 1):
             EPC_sep.append(data[i][data[i]['EPC'] == j])
     
-    if(data_flag[0] == 1):                                 
+    if(norm_flag == 1):                                 
         print(f'---------------- TRAINING DATA HAS {EPC_count} TAGS ---------------')
     else:
         print(f'---------------- TESTING DATA HAS {EPC_count} TAGS ----------------')
@@ -105,16 +101,34 @@ def format(inputs, h5_flag, length, h5_name, labels, data_flag):
     
     #################################### NORMALIZE DATA ####################################
     # normalize RSSI based on preferences
-    if(data_flag[0] == 1):
-        EPC_sep, RSSI_min = RSSI_normalize_train(EPC_sep, RSSI_min_list, data_flag[0])
-        #EPC_sep, phase_max = phase_normalize_train(EPC_sep, data_flag[1])
-        #EPC_sep, RSSI_min = RSSI_normalize_EPC(EPC_sep, EPC_count, data_flag[0])
+    if(norm_flag == 1):
+        # RSSI normalization options
+        EPC_sep, RSSI_val = RSSI_normalize_train(EPC_sep, norm_flag, RSSI_val)
+        #EPC_sep, RSSI_val = RSSI_normalize_EPC(EPC_sep, EPC_count, norm_flag, phase_val)
+
+        # phase normalization options
+        #EPC_sep = phase_log_transform_train(EPC_sep)
+        #EPC_sep, phase_val = phase_normalize_train(EPC_sep, norm_flag, phase_val)
+        #EPC_sep, phase_val = phase_normalize_EPC(EPC_sep, norm_flag, phase_val)
+        #EPC_sep, phase_val = phase_standardize_train(EPC_sep, norm_flag, phase_val)
+        #EPC_sep, phase_val = phase_scale_train(EPC_sep, norm_flag, phase_val)
+        #EPC_sep, phase_val = phase_quantile_transform_train(EPC_sep, norm_flag, phase_val)
+        
         print('---------------- TRAINING DATA NORMALIZED ---------------')
 
     else:
-        EPC_sep, RSSI_min = RSSI_normalize_train(EPC_sep, RSSI_min_list, data_flag[0])
-        #EPC_sep, phase_max = phase_normalize_train(EPC_sep, data_flag[1])
-        #EPC_sep, RSSI_min_tag_list = RSSI_normalize_EPC(EPC_sep, EPC_count, data_flag[0])
+        # RSSI normalization options
+        EPC_sep, RSSI_val = RSSI_normalize_train(EPC_sep, norm_flag, RSSI_val)
+        #EPC_sep, RSSI_val = RSSI_normalize_EPC(EPC_sep, EPC_count, norm_flag, phase_val)
+
+        # phase normalization options
+        #EPC_sep = phase_log_transform_train(EPC_sep)
+        #EPC_sep, phase_val = phase_normalize_train(EPC_sep, norm_flag, phase_val)
+        #EPC_sep, phase_val = phase_normalize_EPC(EPC_sep, norm_flag, phase_val)
+        #EPC_sep, phase_val = phase_standardize_train(EPC_sep, norm_flag, phase_val)
+        #EPC_sep, phase_val = phase_scale_train(EPC_sep, norm_flag, phase_val)
+        #EPC_sep, phase_val = phase_quantile_transform_train(EPC_sep, norm_flag, phase_val)
+        
         print('---------------- TESTING DATA NORMALIZED ----------------')
 
     #for i in range(len(EPC_sep)):
@@ -123,8 +137,8 @@ def format(inputs, h5_flag, length, h5_name, labels, data_flag):
     
     ############################# SMOOTH AND INTERPOLATE DATA #############################
     # filtering functions for non-periodic phase data of quantities around 20
-    EPC_sep = savgol(EPC_sep)
-    EPC_sep = gaussian(EPC_sep)
+    #EPC_sep = savgol(EPC_sep)
+    #EPC_sep = gaussian(EPC_sep)
 
     # find the maximum length of data in all EPC dataframes
     # we can technically set this to whatever we want
@@ -141,7 +155,7 @@ def format(inputs, h5_flag, length, h5_name, labels, data_flag):
                 #EPC_sep[i] = RDP_interpolate(EPC_sep[i], length[1], method, 0.5)
                 EPC_sep[i] = interpolate_data(EPC_sep[i], length[1], method)
             else:
-                EPC_sep[i] = pad_data_zeros(EPC_sep[i], length[1])
+                EPC_sep[i] = pad_data_zeros(EPC_sep[i], length[1], i, EPC_count)
 
             # print('EPC data set:')
             # print(EPC_sep[i], '\n')
@@ -158,14 +172,17 @@ def format(inputs, h5_flag, length, h5_name, labels, data_flag):
         #print(data_new[i])
     
     #################################### AUGMENT EPC DATA ###################################
-    if(data_flag[0] == 1):
+    if(norm_flag == 1):
         # create augmented list and add in augmented dataframes
-        #offset_df_add = [add_constant_offset(df) for df in EPC_sep]
-        #offset_df_sub = [sub_constant_offset(df) for df in EPC_sep]
-        #augmented_df = [add_offset_and_noise(df) for df in EPC_sep]
+        #offset_df_add = [add_constant_offset(df, RSSI_offset=0, phase_offset=1) for df in EPC_sep]
+        #offset_df_sub = [sub_constant_offset(df, RSSI_offset=0, phase_offset=1) for df in EPC_sep]
+        #augmented_df1 = [add_gaussian_noise(df, RSSI_std=0.05, phase_std=0.25) for df in EPC_sep]
+        #augmented_df2 = [add_gaussian_noise(df, RSSI_std=0.1, phase_std=0.5) for df in EPC_sep]
+        #augmented_df3 = [add_gaussian_noise(df, RSSI_std=0.15, phase_std=0.75) for df in EPC_sep]
 
         # concatenate all dataframes and labels togther
         #EPC_sep = EPC_sep + offset_df_add + offset_df_sub
+        #EPC_sep = EPC_sep + augmented_df1 + augmented_df2 + augmented_df3
         #labels = labels + labels + labels
 
         #print('----------------- TRAINING DATA AUGMENTED ---------------')
@@ -179,13 +196,10 @@ def format(inputs, h5_flag, length, h5_name, labels, data_flag):
 
     # use data to save as csv which will return and save unchanged data to h5
     if h5_flag == 1:
-        saveto_h5_4Dmatrix(EPC_sep, h5_name, labels, EPC_count, data_flag[0]) # 4D matrix
+        saveto_h5_4Dmatrix(EPC_sep, h5_name, labels, EPC_count, norm_flag) # 4D matrix
 
-    if (data_flag[0] == 1):
-        train_normalization = []
-        train_normalization.append(RSSI_min)
-        train_normalization.append(phase_max)
-        return train_normalization
+    if (norm_flag == 1):
+        return RSSI_val, phase_val
 
 def tag_counter(data_new, EPC_count, labels):
     count = 0

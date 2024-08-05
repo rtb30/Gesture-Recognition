@@ -36,6 +36,8 @@ def get_csv_filenames(folder_path):
     # augment the name to include the full path
     for i in range(len(csv_files)):
         csv_files[i] = folder_path + '/' + csv_files[i]
+        #if i > 10:
+        #    break
 
     # return file names list
     return csv_files
@@ -54,8 +56,13 @@ def get_csv_all(root_dir):
 
     # Read each subfolder (gesture type)
     for i, gesture_folder in enumerate(sorted(os.listdir(root_dir), key = numerical_sort)):
+        # ignore gesture folders
+        #if gesture_folder in ['20 Circle Clockwise', '21 Circle Counterclockwise']:
+        #    continue
+
         # save gesture path per participant
         gesture_path = os.path.join(root_dir, gesture_folder)
+        #print(gesture_path)
 
         # Read each CSV file in the gesture subfolder and create label
         for csv_file in os.listdir(gesture_path):
@@ -77,14 +84,8 @@ def get_gesture_folders(participant_directory):
 
     # find all the gesture folder per participant and sort them numerically
     for gesture_folder in sorted(os.listdir(participant_directory), key = numerical_sort):
-        # ignore DS_store files (fuck you apple)
-        if gesture_folder == '.DS_Store':
-            continue
-
-        if gesture_folder == '20 Circle Clockwise':
-            continue
-
-        if gesture_folder == '21 Circle Counterclockwise':
+        # ignore folders
+        if gesture_folder in ['.DS_Store']:#, '20 Circle Clockwise', '21 Circle Counterclockwise']:
             continue
 
         # this is a list of all the path names to each gesture per 1 participant

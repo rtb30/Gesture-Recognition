@@ -25,6 +25,6 @@ def main(root_dir):
 
 if __name__ == '__main__':
     # define single gesture path and title for plot
-    root_dir = 'Data/REV7/6 Rick Brophy/RB 3m/2 Pushdown'
+    root_dir = 'Combined Data/3m/2 Pushdown'
 
     main(root_dir)
