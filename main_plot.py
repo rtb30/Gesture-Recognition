@@ -7,13 +7,13 @@ from fileManage import get_csv_filenames
 def main(root_dir):
 
     # define filenames for inputs
-    inputs = get_csv_filenames(root_dir)
+    inputs, labels = get_csv_filenames(root_dir)
     
-    # length: [interp flag, length, max length flag]
-    length = [1, 15, 0]
+    # length: [interp flag, length]
+    length = [1, 15]
 
     # format all data
-    EPC_sep, data_new = format(inputs, length)
+    EPC_sep, data_new = format(inputs, length, labels)
 
     # plot all 3 datasets separated by EPC into 2 graphs (Phase & RSSI)
     #plot_2D_new(title, data_new)
@@ -25,6 +25,6 @@ def main(root_dir):
 
 if __name__ == '__main__':
     # define single gesture path and title for plot
-    root_dir = 'Combined Data/3m/2 Pushdown'
+    root_dir = 'Combined Data/1.5m/10 Arms Swing'
 
     main(root_dir)

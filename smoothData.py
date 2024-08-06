@@ -18,7 +18,7 @@ def rolling(EPC_sep):
 def gaussian(EPC_sep):
     for i in range(len(EPC_sep)):
         EPC_sep[i]['PhaseAngle'] = gaussian_filter1d(EPC_sep[i]['PhaseAngle'], sigma = 1)
-    return EPC_sep
+    return EPC_sep, 1
 
 # savgol filter: smooths data by using successive subsets of adjacent datapoints with a low-degree
 # polynomial by the method of linear least squares
@@ -29,7 +29,7 @@ def savgol(EPC_sep):
             EPC_sep[i]['PhaseAngle'] = savgol_filter(EPC_sep[i]['PhaseAngle'], window_length = 5, polyorder = 2)
         else:
             pass
-    return EPC_sep
+    return EPC_sep, 1
 
 # Detrend function: removes any trend components of data
 def detrend(EPC_sep):

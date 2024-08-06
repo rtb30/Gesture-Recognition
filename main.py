@@ -9,17 +9,17 @@ def main(combined_directory, root_dir):
 
     ############################ SET FLAGS ##########################
     h5_flag = 1         # determines if h5 files are saved
-    length = [1, 20, 0] # [interp flag, length, max length flag]
+    length = [1, 20] # [interp flag, length]
     norm_flag = 1
 
     #################### COMPLETE TRAINING DATA #####################
-    # clear the combined data directory and HDF5 folder
     if 'Combined Data' not in combined_directory:
         print('\n*********************************************************************')
         print('* The destination directory is not the allocated combined directory *')
         print('*********************************************************************\n')
         sys.exit(1)
 
+    # clear the combined data directory and HDF5 folder
     clear_directory('Combined Data/3m', '*.csv')
     clear_folder('HDF5_formatted', '*.h5')
 
@@ -33,10 +33,11 @@ def main(combined_directory, root_dir):
     h5_name = 'ply_data_train'
     RSSI_val = []
     phase_val = []
+    phase_val_tx = []
 
     # format data
-    RSSI_val, phase_val = format(csv_path_combined, h5_flag, length, h5_name, 
-                                 comb_labels, norm_flag, RSSI_val, phase_val)
+    RSSI_val, phase_val, phase_val_tx = format(csv_path_combined, h5_flag, length, h5_name, 
+                                 comb_labels, norm_flag, RSSI_val, phase_val, phase_val_tx)
 
     ###################### COMPLETE TESTING DATA #####################
     # get all csv files from testing participant directory
@@ -48,7 +49,7 @@ def main(combined_directory, root_dir):
 
     # format data
     format(csv_path, h5_flag, length, h5_name, 
-           labels, norm_flag, RSSI_val, phase_val)
+           labels, norm_flag, RSSI_val, phase_val, phase_val_tx)
 
 if __name__ == '__main__':
     #declare root dir that contains subfolders for each gesture & set combine flag
@@ -59,37 +60,38 @@ if __name__ == '__main__':
 
     main(combined_directory, root_dir)
 
-################################ TO DO ################################
-# 2. remove data if there is less than a certain amount of reads
+################################ SCRIPT TO DO LIST ################################
+# 2. graph data to find deletable tags & gestures
+    # use best tx & norm technique from above
 # 3. look into better smoothing / filtering techniques
     # savgol
     # gaussian
-    # jittering?
-    # others?
-# 4. is all formatting doing what we expect?
-# 5. what other augmentation techniques are there? do i know if the ones im using are working?
-# 6. GRAPHICAL ANALYSIS
-    # with and without augmentation, find resonable values
-    # 
+    # exponential moving avg
+    # lowess
+# 4. feature engineering 
+    # temporal      : gesture duration
+    # statistical   : mean & variance
+# 5. augmentation
+    # jittering
+    # warping
+    # rotation and flipping
 # 7. what contriubuted to high reads
-# 8. go thru all code. add comments. see if it can be more efficient
-# 9. feature engineering (statistical analysis on combined patterns)
 # 9. fix rdp interp
-# 10. how to handle empty EPCs? - augmentation can add shifts and noise to zeros
 
-################################ RETRY AFTER ACCURACY = 70% ################################
-# 1. interpolation length
-# 2. convolution layers
-# 3. combined normalization
-# 4. all model hyperparameters
-    # conv layers
-    # batch size
-    # learning rate
-
-################################ Questions for lab ################################
-# 1. What preprocessing does the model do?
-# 2. does it use dropout?
-# 3. the model overfits data
-# 4. are there other models other than the edge cnn?
-# 5. shoukd i be doing cross validation
-# 6. can we make a simple nn?
+################################ MODEL TO DO LIST ################################
+# 1. reduce overfitting!!!!!
+# 2. Questions
+    # What preprocessing does the model do?
+    # does it use dropout?
+        # removes certain nodes to prevent overfitting
+    # are there other models other than the edge cnn?
+    # how can i implement validtion sets and cross-validation
+        # validation sets   : pre-tune hyperparameters
+        #cross-val          : divide dataset into folds to more accurately test the model on unseen data
+    # can we make a simple nn?
+        # less neurons in conv layers, etc
+# 3. Evaluation metrics
+    # precision         : accuracy of positive results  (TP / (TP + FP))
+    # recall            : find relevant instances       (TP / (TP + FN))
+    # F1                : mean of precisions & recall   (2 * (Precision * Recall) / (Precision + Recall))
+    # confusion matrix 

@@ -1,7 +1,8 @@
 # import
 import numpy as np
-from sklearn.preprocessing import QuantileTransformer
+from scipy.stats import median_abs_deviation
 
+# this function normalizes RSSI data by EPC
 def RSSI_normalize_EPC(EPC_sep, EPC_count, RSSI_flag, RSSI_val):
     if RSSI_flag == 1:
         # initialize dictionaries to store min & max RSSI values by EPC 
@@ -41,7 +42,7 @@ def RSSI_normalize_EPC(EPC_sep, EPC_count, RSSI_flag, RSSI_val):
     return EPC_sep, RSSI_val
 
 # this function normalizes the RSSI data based on the absolute minimum RSSI value
-def RSSI_normalize_train(EPC_sep, RSSI_flag, RSSI_val):
+def RSSI_normalize(EPC_sep, RSSI_flag, RSSI_val):
     # find absolute min of RSSI
     if(RSSI_flag == 1):
         RSSI_min_list = []
@@ -67,7 +68,7 @@ def RSSI_normalize_train(EPC_sep, RSSI_flag, RSSI_val):
     return EPC_sep, RSSI_val
 
 # this function normalizes the phase data based on the absolute max phase value
-def phase_normalize_train(EPC_sep, phase_flag, phase_val):
+def phase_normalize(EPC_sep, phase_flag, phase_val):
     # find absolute min and max phase angle after unwrapping
     if(phase_flag == 1):
         phase_min_list = []
@@ -85,6 +86,7 @@ def phase_normalize_train(EPC_sep, phase_flag, phase_val):
 
     return EPC_sep, phase_val
 
+# this function normalizes phase data EPC
 def phase_normalize_EPC(EPC_sep, EPC_count, phase_flag, phase_val):
     if phase_flag == 1:
         # initialize dictionaries to store min & max phase values by EPC 
@@ -96,8 +98,8 @@ def phase_normalize_EPC(EPC_sep, EPC_count, phase_flag, phase_val):
         for df in EPC_sep:
             if not df.empty:
                 EPC_value = df['EPC'].iloc[0]
-                phase_min_dict[EPC_value] = min(phase_min_dict[EPC_value], df['phase'].min())
-                phase_max_dict[EPC_value] = max(phase_max_dict[EPC_value], df['phase'].max())
+                phase_min_dict[EPC_value] = min(phase_min_dict[EPC_value], df['PhaseAngle'].min())
+                phase_max_dict[EPC_value] = max(phase_max_dict[EPC_value], df['PhaseAngle'].max())
         
         #print(phase_min_dict)
         #print(phase_max_dict)
@@ -113,13 +115,13 @@ def phase_normalize_EPC(EPC_sep, EPC_count, phase_flag, phase_val):
             EPC_value = df['EPC'].iloc[0]
             min_val = phase_val[0][EPC_value - 1]
             max_val = phase_val[1][EPC_value - 1]
-            df['phase'] = (df['phase'] - min_val) / (max_val - min_val)
+            df['PhaseAngle'] = (df['PhaseAngle'] - min_val) / (max_val - min_val)
 
     return EPC_sep, phase_val
 
 # this function standardizes the phase values with a mean of 0 and standard deviation of 1
 # this can help for data not suited for min-max normalization
-def phase_standardize_train(EPC_sep, phase_flag, phase_val):
+def phase_standardize(EPC_sep, phase_flag, phase_val):
     # Calculate mean and standard deviation of unwrapped phase angles
     if phase_flag == 1:
         phase_mean_list = []
@@ -139,17 +141,8 @@ def phase_standardize_train(EPC_sep, phase_flag, phase_val):
 
     return EPC_sep, phase_val
 
-# this function returns a log scale of the phase data to compress the data before using mix-max normalization
-def phase_log_transform_train(EPC_sep):
-    for i in range(len(EPC_sep)):
-        if not EPC_sep[i].empty:
-            # Apply log transformation (adding a small constant to avoid log(0))
-            EPC_sep[i]['PhaseAngle'] = np.log1p(np.abs(EPC_sep[i]['PhaseAngle'])) * np.sign(EPC_sep[i]['PhaseAngle'])
-
-    return EPC_sep
-
 # this function scales the data to a -1 to 1 range (Z-score normalization) instead of a 0 to 1 range (standard normalization)
-def phase_scale_train(EPC_sep, phase_flag, phase_val):
+def phase_scale(EPC_sep, phase_flag, phase_val):
     if phase_flag == 1:
         phase_min_list = []
         phase_max_list = []
@@ -167,25 +160,22 @@ def phase_scale_train(EPC_sep, phase_flag, phase_val):
 
     return EPC_sep, phase_val
 
-def phase_quantile_transform_train(EPC_sep, phase_flag, transformer):
-    # Check if phase normalization should be applied
+# Use robust measures of central tendency and dispersion (like median and MAD) to perform Z-score normalization
+def standardize_robust(EPC_sep, phase_flag, phase_val, col):
     if phase_flag == 1:
-
-        transformer = None
-
-        # Combine phase data from all dataframes into a single array
-        phase_data = np.concatenate([df['PhaseAngle'].values for df in EPC_sep if not df.empty])
+        # Collect phase data from all EPCs
+        all_phases = np.concatenate([df[col].values for df in EPC_sep if not df.empty])
         
-        # Initialize the QuantileTransformer, which will map the data to a uniform distribution
-        transformer = QuantileTransformer(output_distribution='uniform')
-        
-        # Fit the transformer on the entire phase data (this computes the quantiles)
-        transformer.fit(phase_data.reshape(-1, 1))
+        # Compute robust statistics
+        median = np.median(all_phases)
+        mad = median_abs_deviation(all_phases)
+        phase_val.append(median)
+        phase_val.append(mad)
     
-    # Apply the fitted transformer to each dataframe
-    for i in range(len(EPC_sep)):
-        if not EPC_sep[i].empty:
-            # Transform the phase data for each dataframe
-            EPC_sep[i]['PhaseAngle'] = transformer.transform(EPC_sep[i]['PhaseAngle'].values.reshape(-1, 1)).flatten()
-
-    return EPC_sep, transformer
+    # Normalize phase data
+    for df in EPC_sep:
+        if not df.empty:
+            df[col] = (df[col] - phase_val[0]) / phase_val[1]
+            df.reset_index(drop=True, inplace=True)
+    
+    return EPC_sep, phase_val
