@@ -24,23 +24,30 @@ def clear_directory(directory_path, ext):
         gesture_path = os.path.join(directory_path, gesture_folder)
         clear_folder(gesture_path, ext)
 
-    print('\n-------------- FINISHED DELETING DIRECTORY --------------\n')
+    print('\n-------------- DELETED COMBINED DIRECTORY ---------------\n')
 
 # this function finds all csv files inside a specified folder from main to
 # store the correct full path of each dataset in an array
-def get_csv_filenames(folder_path):        
-    # use os to list all files in specified folder
-    all_files = os.listdir(folder_path)
-    csv_files = [file for file in all_files if file.endswith('.csv') and file != '.DS_Store']
+def get_csv_filenames(folder_path):       
+    csv_path = []
+    labels = []
 
-    # augment the name to include the full path
-    for i in range(len(csv_files)):
-        csv_files[i] = folder_path + '/' + csv_files[i]
-        #if i > 10:
-        #    break
+    last_folder = os.path.basename(folder_path)
+    number = extract_number_from_string(last_folder)
 
+    for item in os.listdir(folder_path):
+        if item == '.DS_Store':
+            file_path = os.path.join(folder_path, item)
+            os.remove(file_path)
+            #print(f'Removed {file_path}')
+
+    for csv_file in os.listdir(folder_path):
+        if csv_file.endswith('.csv'):
+            csv_path.append(os.path.join(folder_path, csv_file))
+            labels.append(f'gesture{number}')
+            
     # return file names list
-    return csv_files
+    return csv_path, labels
 
 # this function creates a list with all the csv files in a directory
 def get_csv_all(root_dir):
@@ -64,15 +71,14 @@ def get_csv_all(root_dir):
         gesture_path = os.path.join(root_dir, gesture_folder)
         #print(gesture_path)
 
+        number = extract_number_from_string(gesture_folder)
+
         # Read each CSV file in the gesture subfolder and create label
         for csv_file in os.listdir(gesture_path):
             if csv_file.endswith('.csv'):
                 csv_path.append(os.path.join(gesture_path, csv_file))
-                name = f'gesture{i + 1}'
+                name = f'gesture{number}'
                 labels.append(name)
-
-        #if i >= 8:
-        #    break
 
     return csv_path, labels
 
@@ -104,3 +110,9 @@ def numerical_sort(value):
     # finds the first element in the parts array and converts to integer
     # if parts is empty return 0
     return int(parts[0]) if parts else 0
+
+def extract_number_from_string(s):
+    match = re.match(r'^(\d+)', s)
+    if match:
+        return int(match.group(1))
+    return None

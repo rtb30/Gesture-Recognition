@@ -175,26 +175,93 @@ def plot_3D(EPC_sep):
     x = []
     y = []
     z = []
+    count = 0
+    k = 0
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection = '3d')
 
     # Colors for plotting
-    colors = plt.cm.get_cmap('tab10', len(EPC_sep))
+    colors = plt.cm.get_cmap('tab10', 2)
 
     for i in range(len(EPC_sep)):
-        if(EPC_sep[i]['RSSI'][0] == 0):
+        if(EPC_sep[i]['RSSI'].iloc[0] == 0):
+            count += 1
             continue
 
         x.append(EPC_sep[i]['RSSI'])
         y.append(EPC_sep[i]['EPC'])
         z.append(EPC_sep[i]['PhaseAngle'])
-        ax.plot(x[-1], y[-1], z[-1], marker = 'o', color = colors(i)) #c = c[i] for specific colors
+        ax.plot(x[-1], y[-1], z[-1], marker = 'o', color = colors(k)) #c = c[i] for specific colors
+        count += 1
+
+        if(count == 8):
+            k += 1
+            count = 0
 
     ax.set_xlabel('Normalized RSSI')
     ax.set_ylabel('EPC')
     ax.set_zlabel('Phase Angle (rads)')
 
+    # Adjust the margins
+    plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
+
     print("-------------------- FINISHED 3D PLOTTING --------------------\n")
 
     plt.show()
+
+def plot_average_gesture(df_list, labels):
+    # EPC values assumed to be 1, 2, 3, and 4
+    epcs = [1, 2, 3, 4, 5, 6, 7, 8]
+    RSSI_mean = []
+    y = []
+    phase_mean = []
+    
+    # Colors for plotting
+    colors = plt.cm.get_cmap('tab10', 8)
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    
+    for epc in epcs:
+        # Create a new figure for each EPC
+        ax.clear()
+        ax.set_title(f'EPC {epc}')
+        ax.set_xlabel('RSSI')
+        ax.set_ylabel('PhaseAngle')
+
+        #for i in range(0, 20):
+        #    df_list[i][]
+
+
+
+
+        # Plot each dataframe for the current EPC one by one
+        for idx, df in enumerate(df_list):
+            # Filter dataframe for the current EPC
+            epc_data = df[df['EPC'] == epc]
+            if not epc_data.empty:
+                ax.plot(
+                    epc_data['RSSI'], epc_data['PhaseAngle'],
+                    marker='o', linestyle='-', color=colors(idx),
+                    label=f'DataFrame {idx}'
+                )
+
+                # Highlight the starting point
+                ax.plot(
+                    epc_data['RSSI'].iloc[0], epc_data['PhaseAngle'].iloc[0],
+                    marker='s', color=colors(idx), markersize=10, label=f'Start (DF {idx})'
+                )
+                
+                # Highlight the ending point
+                ax.plot(
+                    epc_data['RSSI'].iloc[-1], epc_data['PhaseAngle'].iloc[-1],
+                    marker='^', color=colors(idx), markersize=10, label=f'End (DF {idx})'
+                )
+        
+        # Display legend if any data was plotted
+        if ax.has_data():
+            ax.legend()
+
+        input(f'Press Enter to proceed to the next EPC plot...')
+
+    plt.close(fig)
