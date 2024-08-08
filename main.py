@@ -61,35 +61,36 @@ if __name__ == '__main__':
     main(combined_directory, root_dir)
 
 ################################ SCRIPT TO DO LIST ################################
-# 2. graph data to find deletable tags & gestures
-    # use best tx & norm technique from above
+# 2. change HDF5 format
+# 1. look at other papers, what preprocessing techniques and models did they use?
+    # Sahars phase norm (doesnt make sense)
+    # Random forests
+    # support vector machines
+# 2. delete unwanted model files
+# 4. change padding if there is 1 read then pad with that value
 # 3. look into better smoothing / filtering techniques
     # savgol
     # gaussian
     # exponential moving avg
     # lowess
-# 4. feature engineering 
-    # temporal      : gesture duration
-    # statistical   : mean & variance
-# 5. augmentation
+    # MA
+# 4. augmentation
     # jittering
     # warping
     # rotation and flipping
-# 7. what contriubuted to high reads
-# 9. fix rdp interp
+# 5. fix rdp interp
+# 6. try testing the model on other people, maybe my data is needed to be in training?
+# 7. try testing the model at another distance
+# 8. save attributes and metadata to HDF5 file
+# 9. what contriubuted to high reads
 
 ################################ MODEL TO DO LIST ################################
-# 1. reduce overfitting!!!!!
+# 1. Simplize model
+    # in model file, reduce neurons and make dropout more aggressive
 # 2. Questions
-    # What preprocessing does the model do?
-    # does it use dropout?
-        # removes certain nodes to prevent overfitting
-    # are there other models other than the edge cnn?
     # how can i implement validtion sets and cross-validation
         # validation sets   : pre-tune hyperparameters
         #cross-val          : divide dataset into folds to more accurately test the model on unseen data
-    # can we make a simple nn?
-        # less neurons in conv layers, etc
 # 3. Evaluation metrics
     # precision         : accuracy of positive results  (TP / (TP + FP))
     # recall            : find relevant instances       (TP / (TP + FN))

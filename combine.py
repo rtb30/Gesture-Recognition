@@ -13,7 +13,8 @@ def copy_files(gesture_directory, destination_directory):
             # copy the file to the destination directory
             shutil.copy2(src_file_path, destination_directory)
 
-def combine_participants(participant_directories, combined_directory): 
+def combine_participants(participant_directories, combined_directory):
+    print('---------------- COMBINING TRAINING DATA ----------------')
     all_gesture_paths = []
     participant_count = len(participant_directories)
 
@@ -27,7 +28,7 @@ def combine_participants(participant_directories, combined_directory):
             copy_files(all_gesture_paths[i][j], combined_gesture_directories[j])
         #print(f'Just copied {len(all_gesture_paths[0])} gestures for participant {i+1}')
     
-    print('---------------- COMBINED TRAINING DATA -----------------\n')
+    print(f'Combined {len(participant_directories)} participants\n')
         
 def get_participants():
     participant_directories = ['Data/REV7/1 Stephan Sigg/SS 3m',
@@ -36,10 +37,14 @@ def get_participants():
                                'Data/REV7/4 Giorgio Micaletto/GM 3m',
                                'Data/REV7/5 Ying Liu/YL 3m',
                                'Data/REV7/7 Ines Mesquita/IM 3m',
-                               'Data/REV7/8 Maxwell Sun/3m',
+                               'Data/REV7/8 Maxwell Sun/MS 3m',
                                'Data/REV7/9 Niilo Heimonen/NH 3m',
                                'Data/REV7/10 Justin Han/JH 3m',
                                'Data/REV7/11 Mevlude Alizade/MA 3m',
-                               'Data/REV7/12 Simeona Hein/SH 3m']
+                               'Data/REV7/12 Simeona Hein/SH 3m',
+                               'Data/REV7/13 David Ettel/DE 3m',
+                               'Data/REV7/14 Nik Sugav/NS 3m',
+                               'Data/REV7/15 Laura Rojo/LR 3m'
+                               ]
     
     return participant_directories

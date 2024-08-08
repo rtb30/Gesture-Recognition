@@ -2,18 +2,18 @@
 import pandas as pd
 # this gets rid of some random warning when separating data into EPC1 & EPC2
 pd.options.mode.chained_assignment = None  # default='warn'
-from smoothData import rolling, gaussian, savgol, detrend
+from smoothData import gaussian, savgol, detrend, lowess_smooth, exponential_moving_average
 from interpData import RDP_interpolate, interpolate_data, pad_data_zeros
-from normalizeData import (RSSI_normalize_EPC, RSSI_normalize_train, phase_normalize_train, 
-                           phase_scale_train, phase_standardize_train, phase_log_transform_train, 
-                           phase_quantile_transform_train)
+from normalizeData import (RSSI_normalize_EPC, RSSI_normalize, phase_normalize, 
+                           phase_scale, phase_standardize, standardize_robust)
+from transformData import phase_log_transform
 from augmentData import add_constant_offset, sub_constant_offset, add_gaussian_noise, add_offset_and_noise
 import copy
 
 # this function formats the original data exported from the ItemTest program
 # made by IMPINJ. The output of this function returns a dataframe list
 # which contains RSSI & phase data based on EPC and iteration for 1 gesture
-def format(inputs, length, labels):
+def format2(inputs, length, labels):
 
     ############################### FUNCTION VARIABLES ###############################
     # init empty lists
@@ -21,8 +21,8 @@ def format(inputs, length, labels):
     EPC_sep = []
     data_new = []
     EPC_count_list = []
-    RSSI_val = []
-    phase_val = []
+    RSSI_val = [-80.5, -54.5]
+    phase_val = [3.810408277107933, 1.9512235621905356]
 
     #init empty dictionary
     mapping = {}
@@ -101,30 +101,36 @@ def format(inputs, length, labels):
     EPC_sep_normalized = copy.deepcopy(EPC_sep)
     #################################### NORMALIZE DATA ####################################
     # RSSI normalization options
-    EPC_sep_normalized, RSSI_val = RSSI_normalize_train(EPC_sep_normalized, 1, RSSI_val)
-    #EPC_sep, RSSI_min = RSSI_normalize_EPC(EPC_sep, EPC_count, data_flag[0])
+    EPC_sep_normalized, RSSI_val = RSSI_normalize(EPC_sep_normalized, 0, RSSI_val)
+    #EPC_sep, RSSI_val = RSSI_normalize_EPC(EPC_sep, EPC_count, norm_flag, RSSI_val)
+
+    # phase transformation options 
+    #EPC_sep, phase_val_tx = phase_robust_scaler(EPC_sep, norm_flag, phase_val_tx)
+    #EPC_sep, phase_val_tx = phase_power_transform(EPC_sep, norm_flag, phase_val_tx)
 
     # phase normalization options
-    #EPC_sep = phase_log_transform_train(EPC_sep)
-    #EPC_sep, phase_val = phase_normalize_train(EPC_sep, 1, phase_val)
-    #EPC_sep, phase_val = phase_standardize_train(EPC_sep, 1, phase_val)
-    #EPC_sep_normalized, phase_val = phase_scale_train(EPC_sep_normalized, 1, phase_val)
-    #EPC_sep, phase_val = phase_quantile_transform_train(EPC_sep, 1, phase_val)
-    
-    print(f'--------------------- NORMALIZED DATA ------------------')
+    EPC_sep_normalized, phase_val = standardize_robust(EPC_sep_normalized, 0, phase_val, 'PhaseAngle')
 
     ############################# SMOOTH AND INTERPOLATE DATA #############################
-    # filtering functions for non-periodic phase data of quantities around 20
+    # filtering and smoothing functions
     EPC_sep_smooth = copy.deepcopy(EPC_sep_normalized)
-    EPC_sep_smooth = savgol(EPC_sep_smooth)
-    EPC_sep_smooth = gaussian(EPC_sep_smooth)
+    window_length = 5
+    polyord = 2
+    stdv = 1
+    EPC_sep_smooth = savgol(EPC_sep_smooth, 'PhaseAngle', window_length, polyord)
+    EPC_sep_smooth = gaussian(EPC_sep_smooth, 'PhaseAngle', stdv)
+
+    sm1 = copy.deepcopy(EPC_sep_normalized)
+    #sm1 = lowess_smooth(sm1, 'PhaseAngle', 0.75)
+    sm1 = exponential_moving_average(sm1, 'PhaseAngle')
 
     # define interpolation type
     method = 'linear'
 
     print(f'--------------------- SMOOTHED & INTERPOLATED DATA ------------------')
     # ensure all data is the same length using an RDP algorithm and/or interpolation
-    EPC_sep_interp = copy.deepcopy(EPC_sep_smooth)
+    EPC_sep_interp = copy.deepcopy(EPC_sep_normalized)
+    # EPC_sep_interp = copy.deepcopy(EPC_sep_smooth)
     if length[0]:
         for i in range(len(EPC_sep_interp)):
             if(EPC_sep_interp[i].shape[0] > 1):
@@ -137,25 +143,36 @@ def format(inputs, length, labels):
             #    print('EPC data set:')
             #    print(EPC_sep[i], '\n')
 
+    #sm1 = copy.deepcopy(EPC_sep_interp)
+    #window_length = 5
+    #polyord = 2
+    #stdv = 1
+    #sm1 = savgol(sm1, 'RSSI', window_length, polyord)
+    #sm1 = savgol(sm1, 'PhaseAngle', window_length, polyord)
+    #sm1 = gaussian(sm1, 'RSSI', 1)
+    #sm1 = gaussian(sm1, 'PhaseAngle', stdv)
+
     ################################## CONCATENATE EPC DATA #################################
     # concatenate separated EPC data into singular dataframe sorted chronologically again
-    for i in range(len(data)):
-        EPC_gesture_list = []
-        for j in range(EPC_count):
-            EPC_gesture_list.append(EPC_sep[i * EPC_count + j])
-        
-        data_new.append(pd.concat(EPC_gesture_list, ignore_index = False))
-        #print(f'This is new data set {i}:')
-        #print(data_new[i])
-    
-    aug_EPC = copy.deepcopy(EPC_sep_interp)
-    aug2_EPC = copy.deepcopy(EPC_sep_interp)
+    #for i in range(len(data)):
+    #    EPC_gesture_list = []
+    #    for j in range(EPC_count):
+    #        EPC_gesture_list.append(EPC_sep[i * EPC_count + j])
+    #    
+    #    data_new.append(pd.concat(EPC_gesture_list, ignore_index = False))
+    #    #print(f'This is new data set {i}:')
+    #    #print(data_new[i])
+    #
+    #aug_EPC = copy.deepcopy(EPC_sep_interp)
+    #aug2_EPC = copy.deepcopy(EPC_sep_interp)
+
     #################################### AUGMENT EPC DATA ###################################
     # create augmented list and add in augmented dataframes
-    aug_EPC = [add_gaussian_noise(df, RSSI_std=0.075, phase_std=0.5) for df in aug_EPC]
+    #aug_EPC = [add_gaussian_noise(df, RSSI_std=0.075, phase_std=0.5) for df in aug_EPC]
     #offset_df_add = [add_constant_offset(df, RSSI_offset=0, phase_offset=1) for df in aug2_EPC]
 
-    EPC_sep_total = EPC_sep_interp + aug_EPC
+   # EPC_sep_total = EPC_sep_normalized + EPC_sep_smooth
+    EPC_sep_total = EPC_sep_normalized + EPC_sep_smooth + sm1
 
     # count how many times each tag appears per gesture
     #tag_counter(data_new, EPC_count, labels)
