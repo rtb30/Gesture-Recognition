@@ -1,7 +1,8 @@
 # import functions
-from formatDataforPlot import format
+from formatDataforPlot import format2
 from plottingData import plot_2D, plot_3D, plot_2D_new, plot_gesture_data_interactive
 from fileManage import get_csv_filenames
+from formatData import format
 
 # this function is to reformat and plot a gesture
 def main(root_dir):
@@ -10,10 +11,10 @@ def main(root_dir):
     inputs, labels = get_csv_filenames(root_dir)
     
     # length: [interp flag, length]
-    length = [1, 15]
+    length = [1, 20]
 
     # format all data
-    EPC_sep, data_new = format(inputs, length, labels)
+    EPC_sep, data_new = format2(inputs, length, labels)
 
     # plot all 3 datasets separated by EPC into 2 graphs (Phase & RSSI)
     #plot_2D_new(title, data_new)
@@ -26,5 +27,6 @@ def main(root_dir):
 if __name__ == '__main__':
     # define single gesture path and title for plot
     root_dir = 'Combined Data/1.5m/10 Arms Swing'
+    #root_dir = 'Combined Data/1.5m/6 Lat to Front'
 
     main(root_dir)

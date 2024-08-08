@@ -3,6 +3,13 @@ import numpy as np
 from sklearn.preprocessing import QuantileTransformer, RobustScaler, PowerTransformer
 from scipy import stats
 
+# unwrap all phase data in [0, 2pi] by EPC per gesture 
+def unwrap(EPC_sep):
+    for df in EPC_sep:
+        if not df.empty:
+            df['PhaseAngle'] = np.unwrap(df['PhaseAngle'])
+
+    return EPC_sep
 # this function returns a log scale of the phase data to compress the data before normalization
 # The transformed values are not strictly bounded or scaled, which might lead to inconsistencies 
 # when used with subsequent normalization techniques
@@ -80,6 +87,7 @@ def phase_robust_scaler(EPC_sep, phase_flag, scaler):
             df['PhaseAngle'] = scaler.transform(df['PhaseAngle'].values.reshape(-1, 1)).flatten()
             df.reset_index(drop=True, inplace=True)
     
+    print('Robust Transformation on PhaseAngle')
     return EPC_sep, scaler
 
 # Applies a power transformation to make the data more Gaussian-like. 
@@ -102,4 +110,5 @@ def phase_power_transform(EPC_sep, phase_flag, transformer):
             df['PhaseAngle'] = transformer.transform(df['PhaseAngle'].values.reshape(-1, 1)).flatten()
             df.reset_index(drop=True, inplace=True)
     
+    print('Power Transformation on PhaseAngle')
     return EPC_sep, transformer

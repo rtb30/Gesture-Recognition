@@ -37,7 +37,7 @@ Data          : Folder that contains all data. There are multiple reivisions of 
         - 09 NH: All tags 0 deg
         - 10 JH: All tags 0 deg
         - 11 MA: All tags 0 deg (didn't fully complete study)
-        - 12 SH: All tags 0 deg (copied 3m G17 from HS)
+        - 12 SH: All tags 0 deg (copied 2 csvs of 3m G17 from first 10 participants)
 
 Graphs        : Folder that contains all graphs from processing the exported data.
     REV2: Original

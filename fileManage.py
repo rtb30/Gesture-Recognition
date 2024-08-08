@@ -20,11 +20,12 @@ def clear_folder(folder_path, ext):
             print(f"Error: {file} - {e.strerror}")
 
 def clear_directory(directory_path, ext):
+    print('\n-------------- DELETING COMBINED DIRECTORY --------------')
     for gesture_folder in sorted(os.listdir(directory_path)):
         gesture_path = os.path.join(directory_path, gesture_folder)
         clear_folder(gesture_path, ext)
 
-    print('\n-------------- DELETED COMBINED DIRECTORY ---------------\n')
+    print(f'Deleted all {ext} file in {directory_path}\n')
 
 # this function finds all csv files inside a specified folder from main to
 # store the correct full path of each dataset in an array
@@ -62,14 +63,13 @@ def get_csv_all(root_dir):
             #print(f'Removed {file_path}')
 
     # Read each subfolder (gesture type)
-    for i, gesture_folder in enumerate(sorted(os.listdir(root_dir), key = numerical_sort)):
+    for gesture_folder in sorted(os.listdir(root_dir), key = numerical_sort):
         # ignore gesture folders
-        #if gesture_folder in ['20 Circle Clockwise', '21 Circle Counterclockwise']:
+        #if gesture_folder in ['18 Two-hand Inward Circles']:
         #    continue
 
         # save gesture path per participant
         gesture_path = os.path.join(root_dir, gesture_folder)
-        #print(gesture_path)
 
         number = extract_number_from_string(gesture_folder)
 
@@ -88,14 +88,20 @@ def get_gesture_folders(participant_directory):
     # create empty list for gesture paths
     gesture_path = []
 
+    for item in os.listdir(participant_directory):
+        if item == '.DS_Store':
+            file_path = os.path.join(participant_directory, item)
+            os.remove(file_path)
+
     # find all the gesture folder per participant and sort them numerically
     for gesture_folder in sorted(os.listdir(participant_directory), key = numerical_sort):
-        # ignore folders
-        if gesture_folder in ['.DS_Store']:#, '20 Circle Clockwise', '21 Circle Counterclockwise']:
-            continue
+        # ignore gesture folders
+        #if gesture_folder in ['18 Two-hand Inward Circles']:
+        #    continue
 
         # this is a list of all the path names to each gesture per 1 participant
         gesture_path.append(os.path.join(participant_directory, gesture_folder))
+        #print(gesture_path[-1])
 
     return gesture_path
 
